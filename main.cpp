@@ -49,6 +49,11 @@ int main(int argc, char *argv[])
     qDebug()<<"Reset: "<< cashcode.sendCommand(reset);
     cashcode.sendCommand(ack);
 
+    QThread::sleep(2);
+    qDebug()<<"sleep 2 ended";
+
+
+
     QTimer t1;
     QTimer t2;
     t1.setInterval(200);

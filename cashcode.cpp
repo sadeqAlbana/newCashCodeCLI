@@ -1,9 +1,14 @@
 #include "cashcode.h"
 #include <QDeadlineTimer>
 #include <QDebug>
+#include <QCoreApplication>
 CashCode::CashCode(QObject *parent) : QObject(parent)
 {
-    serial.setPortName("/dev/ttyUSB0");
+    QString arg=QCoreApplication::arguments().value(1);
+    if(arg.isEmpty())
+        arg="/dev/ttyUSB0";
+
+    serial.setPortName(arg);
 }
 
 bool CashCode::open()

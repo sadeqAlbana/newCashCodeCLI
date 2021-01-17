@@ -37,7 +37,7 @@ QByteArray CashCode::sendCommand(QByteArray command)
     unsigned long utimeout= command.at(3)=='\x30' ? 2000000 : 10000;
 
 
-    QThread::usleep(utimeout); //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
+    //QThread::usleep(utimeout); //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
 
     if(command.at(3)=='\x00'){
          //QThread::usleep(20000);

@@ -34,12 +34,17 @@ QByteArray CashCode::sendCommand(QByteArray command)
     if(!serial.waitForBytesWritten()) //official is 10ms
         return QByteArray("w bytes written");
 
-    //QThread::usleep(10000); //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
+    int utimeout= command.at(3)=='\x30' ? 2000000 : 10000;
+
+
+    QThread::usleep(utimeout); //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
 
     if(command.at(3)=='\x00'){
+         QThread::usleep(20000);
         return "ACK";
     }
     if(command.at(3)=='\xff'){
+         QThread::usleep(20000);
         return "NAK";
     }
 
@@ -56,12 +61,12 @@ QByteArray CashCode::sendCommand(QByteArray command)
             result.append(serial.readAll());
             //qDebug()<<"result: " << result;
         }
-        //QThread::usleep(20000); //20ms
+        QThread::usleep(20000); //20ms
         return result;
     }
     else{
 
-        //QThread::usleep(20000); //20ms
+        QThread::usleep(20000); //20ms
         return QByteArray("W ready read");
     }
 }

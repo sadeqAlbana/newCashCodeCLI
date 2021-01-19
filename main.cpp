@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <iostream>
 #include "cashcode.h"
-
+#include "cashcodecommand.h"
 
 int main(int argc, char *argv[])
 {
@@ -29,6 +29,8 @@ int main(int argc, char *argv[])
 
 
     CashCode cashcode;
+
+
     if(!cashcode.open()){
         qDebug()<<"could not open !";
         return 0;
@@ -46,10 +48,10 @@ int main(int argc, char *argv[])
 //        QThread::msleep(500);
 //    }
 
-    qDebug()<<"Reset: "<< cashcode.sendCommand(reset);
+    qDebug()<<"Reset: "<< cashcode.sendCommand(CashCode::deviceCommand::reset);
     cashcode.sendCommand(ack);
 
-    QThread::sleep(2);
+    QThread::sleep(1);
     qDebug()<<"sleep 2 ended";
 
 
@@ -62,8 +64,8 @@ int main(int argc, char *argv[])
         //t1.stop();
         QByteArray poll=QByteArray::fromHex("02030633da81");
         QByteArray ack=QByteArray::fromHex("02030600c282");
-        qDebug()<<"poll: " << cashcode.sendCommand(poll);
-        cashcode.sendCommand(ack);
+        qDebug()<<"poll: " << cashcode.sendCommand(CashCode::deviceCommand::poll);
+        //cashcode.sendCommand(CashCode::deviceCommand::ac);
         //t2.start();
     });
 

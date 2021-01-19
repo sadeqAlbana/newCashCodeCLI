@@ -1,6 +1,6 @@
 #ifndef CASHCODECOMMAND_H
 #define CASHCODECOMMAND_H
-
+#include <QByteArray>
 /*
 format:
 SYNC: 1 byte Message transmission start code [02H], fixed
@@ -42,7 +42,33 @@ buses the recommended value of t free is 20mS
 class CashCodeCommand
 {
 public:
-    CashCodeCommand();
+
+
+    enum class deviceCommand : quint8 {
+        reset = 0x30,
+        getStatus = 0x31,
+        setSecurity = 0x32,
+        poll = 0x33,
+        enableBillTypes = 0x34,
+        stackBill = 0x35,
+        returnBill = 0x36,
+        identification = 0x37,
+        holdBill = 0x38,
+        setBarcodeParameters = 0x39,
+        extractBarcodeData = 0x3a,
+        getBillTable = 0x41,
+        download = 0x50,
+        getCrc32 = 0x51,
+        requeststatistics = 0x60
+    };
+
+
+    CashCodeCommand(const deviceCommand &cmd,const quint8 &subCmd, const QByteArray &data);
+
+
+
+private:
+    QByteArray m_data;
 };
 
 

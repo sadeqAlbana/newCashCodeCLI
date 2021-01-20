@@ -18,12 +18,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         cashcode.cpp \
         cashcodecommand.cpp \
+        ccnetresponse.cpp \
         main.cpp \
         serialport.cpp
 
 HEADERS += \
     cashcode.h \
     cashcodecommand.h \
+    ccnetresponse.h \
     serialport.h
 
 # Default rules for deployment.

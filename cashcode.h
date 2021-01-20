@@ -4,7 +4,7 @@
 #include <QThread>
 #include "serialport.h"
 #define POLYNOMIAL 0x08408
-
+typedef std::vector<unsigned char> vec_bytes;
 
 class CashCode : public QObject
 {
@@ -40,10 +40,10 @@ public:
         requeststatistics = 0x60
     };
 
-    enum class device_state_code : quint8 {
+    enum class deviceSstateCode : quint8 {
         unknown = 0x00,
-        power_up = 0x10,
-        power_up_with_bill_in_val = 0x11,
+        powerUp = 0x10,
+        powerUpWithBillInVal = 0x11,
         power_up_with_bill_in_stack = 0x12,
         initialize = 0x13,
         idling = 0x14,
@@ -68,10 +68,9 @@ public:
 
 
 
-    QByteArray sendCommand(QByteArray command);
     QByteArray sendCommand(const deviceCommand &cmd,const quint8 &subCmd=0, const QByteArray &data=QByteArray());
 
-    quint16 crc16(const QByteArray data) const;
+    unsigned int crc16(const QByteArray data) const;
 
     bool messageComplete(const QByteArray &data) const;
 
@@ -80,7 +79,17 @@ public:
     bool sendACK();
     bool sendNAK();
 
+    int powerup();
+
+    bool CheckErrors(QByteArray result);
+
     QByteArray createMessage(const deviceCommand &cmd, const quint8 &subCmd=0, QByteArray data=QByteArray());
+
+    void run();
+
+    vec_bytes GetCRC16(QByteArray data);
+
+    int m_LastError;
 
 
 
@@ -92,6 +101,7 @@ public slots:
 
 private:
     SerialPort serial;
+     int         channels[8] = { 0,250,500,1000,5000,10000,25000,50000};
 };
 
 #endif // CASHCODE_H

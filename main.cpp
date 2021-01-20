@@ -21,14 +21,20 @@ int main(int argc, char *argv[])
     //std::vector<char> poll( { '\x02', '\x03', '\x06', '\x33', '\xDA', '\x81' });
     std::vector<char> getStatus({ '\x02', '\x03', '\x06', '\x31', '\xC8', '\xA2' });
 
-    QByteArray reset=QByteArray::fromHex("0203063041b3");
-    QByteArray ack=QByteArray::fromHex("02030600c282");
-    QByteArray poll=QByteArray::fromHex("02030633da81");
-    QByteArray nak=QByteArray::fromHex("020306ffba8d");
+//    QByteArray reset=QByteArray::fromHex("0203063041b3");
+//    QByteArray ack=QByteArray::fromHex("02030600c282");
+//    QByteArray poll=QByteArray::fromHex("02030633da81");
+//    QByteArray nak=QByteArray::fromHex("020306ffba8d");
 
 
 
     CashCode cashcode;
+//    qDebug()<<cashcode.createMessage(CashCode::deviceCommand::enableBillTypes,0,QByteArray::fromHex("83A0F883A0F8")).toHex(' ');
+//    qDebug()<<"crc16 val: " << cashcode.crc16(QByteArray::fromHex("02030c3483a0f883a0f8"));
+//    qDebug()<<"GetCRC val2: " << cashcode.GetCRC16(QByteArray::fromHex("02030c3483a0f883a0f8"));
+
+//    return 0;
+
 
 
     if(!cashcode.open()){
@@ -37,7 +43,7 @@ int main(int argc, char *argv[])
     }
     qDebug()<<"opened !";
 
-    QThread::sleep(1);
+    //QThread::sleep(1);
 
     qDebug()<<"sleep ended";
 
@@ -48,10 +54,9 @@ int main(int argc, char *argv[])
 //        QThread::msleep(500);
 //    }
 
-    qDebug()<<"Reset: "<< cashcode.sendCommand(CashCode::deviceCommand::reset);
-    cashcode.sendCommand(ack);
-
-    QThread::sleep(1);
+    //qDebug()<<"Reset: "<< cashcode.sendCommand(CashCode::deviceCommand::reset);
+    cashcode.powerup();
+    QThread::sleep(4);
     qDebug()<<"sleep 2 ended";
 
 
@@ -77,10 +82,29 @@ int main(int argc, char *argv[])
 
 //    });
 
-    t1.start();
+    //t1.start();
+
+    QByteArray t;
+    t.append('\x80');
+    t.append('\x20');
+    t.append('\x08');
+    t.append('\x80');
+    t.append('\x20');
+    t.append('\x08');
+    //std::reverse(t.begin(),t.end());
+
+    //qDebug()<<"enable bill types escr: "<< cashcode.sendCommand(CashCode::deviceCommand::enableBillTypes,0,QByteArray::fromHex("FFFFFFFFFFFF"));
 
 
-//    cashcode.close();
+    //qDebug()<<"enable bill types escr: "<< cashcode.sendCommand(CashCode::deviceCommand::enableBillTypes,0,QByteArray::fromHex("000000000000"));
+
+    qDebug()<<"enable bill types: "<< cashcode.sendCommand(CashCode::deviceCommand::enableBillTypes,0,t);
+    QThread::msleep(10);
+
+    cashcode.run();
+
+
+    cashcode.close();
 //    qDebug()<<"closed !";
 //    exit(0);
 

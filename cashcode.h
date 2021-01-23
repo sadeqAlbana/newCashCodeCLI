@@ -4,7 +4,6 @@
 #include <QThread>
 #include "serialport.h"
 #define POLYNOMIAL 0x08408
-typedef std::vector<unsigned char> vec_bytes;
 
 class CashCode : public QObject
 {
@@ -87,7 +86,6 @@ public:
 
     void run();
 
-    vec_bytes GetCRC16(QByteArray data);
 
     int m_LastError;
 

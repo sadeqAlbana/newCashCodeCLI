@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 //        QThread::msleep(500);
 //    }
 
-    //qDebug()<<"Reset: "<< cashcode.sendCommand(CashCode::deviceCommand::reset);
-    cashcode.powerup();
+    qDebug()<<"Reset: "<< cashcode.sendCommand(CashCode::deviceCommand::reset);
+    //cashcode.powerup();
     QThread::sleep(4);
     qDebug()<<"sleep 2 ended";
 
@@ -102,6 +102,9 @@ int main(int argc, char *argv[])
     QThread::msleep(10);
 
     cashcode.run();
+
+    qDebug()<<"enable bill types: "<< cashcode.sendCommand(CashCode::deviceCommand::enableBillTypes,0,QByteArray::fromHex("000000000000"));
+
 
 
     cashcode.close();

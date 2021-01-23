@@ -95,39 +95,7 @@ QByteArray CashCode::sendCommand(const CashCode::deviceCommand &cmd, const quint
 
 }
 
-vec_bytes CashCode::GetCRC16(QByteArray data)
-{
-    vec_bytes v_CRC;
-    unsigned int TmpCRC, CRC;
-    int sizeData=data.size();
-    QByteArray bufData=data;
-    unsigned char j;
-    CRC = 0;
-    for(int i=0; i < sizeData; i++)
-    {
-        TmpCRC = CRC ^ bufData[i];
-        for(j=0; j < 8; j++)
-        {
-            if(TmpCRC & 0x0001)
-            {
-                TmpCRC >>= 1; TmpCRC ^= POLYNOMIAL;
-            }
-            else
-            {
-                TmpCRC >>= 1;
-            }
-        }
-        CRC = TmpCRC;
-    }
 
-    //return CRC;
-
-//    vec_bytes v_CRC;
-    v_CRC.push_back((unsigned char)CRC & 0xFF);
-    v_CRC.push_back((unsigned char)((CRC >> 8) & 0xFF));
-
-    return v_CRC;
-}
 
 unsigned int CashCode::crc16(const QByteArray data) const
 {

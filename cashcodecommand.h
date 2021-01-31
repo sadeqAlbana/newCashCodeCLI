@@ -42,8 +42,6 @@ buses the recommended value of t free is 20mS
 class CashCodeCommand
 {
 public:
-
-
     enum class deviceCommand : quint8 {
         reset = 0x30,
         getStatus = 0x31,

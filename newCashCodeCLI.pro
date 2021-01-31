@@ -19,14 +19,24 @@ SOURCES += \
         cashcode.cpp \
         cashcodecommand.cpp \
         ccnetresponse.cpp \
+        getbilltableresponse.cpp \
+        getstatusresponse.cpp \
+        identificationresponse.cpp \
         main.cpp \
-        serialport.cpp
+        pollresponse.cpp \
+        serialport.cpp \
+        utils.cpp
 
 HEADERS += \
     cashcode.h \
     cashcodecommand.h \
     ccnetresponse.h \
-    serialport.h
+    getbilltableresponse.h \
+    getstatusresponse.h \
+    identificationresponse.h \
+    pollresponse.h \
+    serialport.h \
+    utils.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

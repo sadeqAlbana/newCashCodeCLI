@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         cashcode.cpp \
         cashcodecommand.cpp \
+        ccnetexception.cpp \
         ccnetresponse.cpp \
         getbilltableresponse.cpp \
         getstatusresponse.cpp \
@@ -30,6 +31,7 @@ SOURCES += \
 HEADERS += \
     cashcode.h \
     cashcodecommand.h \
+    ccnetexception.h \
     ccnetresponse.h \
     getbilltableresponse.h \
     getstatusresponse.h \

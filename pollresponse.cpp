@@ -22,6 +22,11 @@ PollResponse::GenericFailureReason PollResponse::failureReason() const
 
 }
 
+int PollResponse::stackedBill() const
+{
+    return CCNet::channels[z2()];
+}
+
 
 QDebug operator<<(QDebug debug, PollResponse::Status status)
 {
@@ -94,7 +99,8 @@ QDebug operator<<(QDebug debug, PollResponse::Status status)
         break;
 
     default:
-        debug << QString("Unknown value: %1 ").arg(QString(QByteArray::fromRawData((char *)&status,1).toHex()));
+        debug << QString("PollResponse::Status: Unknown value: %1 ").arg(QString(QByteArray::fromRawData((char *)&status,1).toHex()));
+        break;
     }
     return debug;
 
@@ -140,7 +146,7 @@ QDebug operator<<(QDebug debug, PollResponse::GenericFailureReason failure)
         break;
 
     default:
-        debug << QString("Unknown value: %1 ").arg(QString(QByteArray::fromRawData((char *)&failure,1).toHex()));
+        debug << QString("PollResponse::GenericFailureReason Unknown value: %1 ").arg(QString(QByteArray::fromRawData((char *)&failure,1).toHex()));
     }
     return debug;
 }

@@ -40,10 +40,11 @@ int main(int argc, char *argv[])
 
 
 
+    QThread::sleep(2);
 
-    QThread::sleep(5);
-
-
+    cashcode.enableBillTypes();
+    cashcode.operate();
+    cashcode.disableBillTypes();
 
 
     cashcode.close();

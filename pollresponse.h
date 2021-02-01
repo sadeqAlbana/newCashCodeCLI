@@ -84,9 +84,12 @@ public:
     PollResponse::Status status() const;
     PollResponse::GenericFailureReason failureReason() const;
 
+    int stackedBill() const;
+
     friend QDebug operator<<(QDebug debug, PollResponse::Status status );
     friend QDebug operator<<(QDebug debug, PollResponse::RejectReason reason);
     friend QDebug operator<<(QDebug debug, PollResponse::GenericFailureReason failure);
+
 };
 
 

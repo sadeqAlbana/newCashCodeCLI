@@ -42,7 +42,10 @@ public:
 
 
     void enableBillTypes();
+    void disableBillTypes();
     PollResponse poll();
+
+    void operate();
 
 
 

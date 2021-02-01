@@ -153,6 +153,13 @@ int CashCode::powerup()
     PollResponse poll=this->poll();
     //qDebug()<<poll.status();
 
+    if(poll.status()==PollResponse::Disabled){
+        qDebug()<<"validator is already ready to work !";
+        return 0;
+    }
+
+
+
 
     if(poll.status()==PollResponse::PowerUp){
         CCNetResponse reset=this->sendCommand(CCNet::deviceCommand::reset);
@@ -160,10 +167,7 @@ int CashCode::powerup()
 
         poll=this->poll();
         if(poll.status()==PollResponse::Initilize){
-            poll=this->poll();
-            if(poll.status()==PollResponse::Initilize){
                 poll=this->poll();
-                if(poll.status()==PollResponse::Disabled){
                     GetStatusResponse getStatus=this->sendCommand(CCNet::deviceCommand::getStatus);
                     qDebug()<<getStatus.billTypes();
                     GetBillTableResponse getBillTable=this->sendCommand(CCNet::deviceCommand::getBillTable);
@@ -175,16 +179,24 @@ int CashCode::powerup()
 
                     IdentificationResponse identification=this->sendCommand(CCNet::deviceCommand::identification);
                     qDebug()<<identification.partNumber();
-                }
-            }
-        }
 
 
 
+                    for(int i=0; i<50; i++){
+                        poll=this->poll();
+                        if(poll.status()==PollResponse::Disabled){
+                         qDebug()<<"bill validator ready to work !";
+                         return 0;
+                        }
+                        else{
+                            //exit with some error code ?
+                        }
+                    }
 
-    }
 
+                } //initilize
 
+        } //powerup
 
 
 }
@@ -234,84 +246,6 @@ QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8
 }
 
 
-void CashCode::run(){
-        bool has_error = false;
-        int  balance=0;
-        bool must_stop=false;
-        int stackCounter=0;
-
-        while (!must_stop && balance==0 && !has_error){
-            CCNetResponse result = sendCommand(CCNet::deviceCommand::poll);
-            qDebug()<<"res: "<<result;
-            //qDebug()<<Q_FUNC_INFO << result << " ---------" <<"SIZE: " << result.size() << " -- " << (result[3]==0xff);
-            if (result.error()!=CCNetResponse::NoError){
-                //this->_ccnet->sendCommand(deviceCommand::NAK);
-                has_error=true;
-                qDebug()<<"Has error: " << result.error();
-
-                continue;
-            }
-//            if (this->CheckErrors(result)){
-//                has_error = true;
-//                must_stop = true;
-//                qDebug()<<"balance before Error: " << balance;
-//                balance=0;
-////                CashCodeError cc_error(this->_ccnet->m_LastError);
-////                QString error_string(cc_error.getMessage().c_str());
-////                KLog::log("error/cashcode",error_string);
-////                this->_ccnet->sendCommand(deviceCommand::NAK);
-//                continue;
-//            }
-//            if (result[3] == '\x00'){
-//                //this->_ccnet->sendCommand(deviceCommand::POLL);
-//                continue;
-//            }
-//            if (result[3] == '\x14'){
-//                //this->_ccnet->sendCommand(deviceCommand::ACK);
-//                continue;
-//            }
-
-            if (result.z1() != 0x14){
-//                if (result[3] == 0x15){
-//                    // Accepting
-//                    this->_ccnet->sendCommand(deviceCommand::ACK);
-//                }
-//                else if (result[3] == 0x1c){
-//                    // ESCROW Position
-//                    this->_ccnet->sendCommand(deviceCommand::ACK);
-//                }
-                 if (result.z1() == 0x80){
-                    //this->_ccnet->sendCommand(deviceCommand::ACK);
-                    qDebug()<<"Stack sent !";
-                    qDebug()<<"rr:" << sendCommand(CCNet::deviceCommand::stackBill);
-                }
-//                else if (result[3] == 0x17){
-//                    this->_ccnet->sendCommand(deviceCommand::ACK);
-//                }
-                else if (result.z1() == 0x81){
-                    //Bill Stacked
-                    qDebug()<<"Bill Stacked:";
-                    stackCounter++;
-                    qDebug()<<"stack counter: " << stackCounter;
-                    //if(stackCounter==3){
-                        //this->_ccnet->sendCommand(deviceCommand::ACK);
-                        balance = this->channels[result.z2()];
-                        must_stop=true;
-                        qDebug()<<"balance:" << balance;
-                    //}
-                }
-//                else if (result[3] == '\x18'){
-//                    // Returning
-//                    //this->_ccnet->sendCommand(deviceCommand::ACK);
-//                }
-//                else if (result[3] == 0x82){
-//                    this->_ccnet->sendCommand(deviceCommand::ACK);
-//                }
-            }
-            QThread::msleep(200); //was 50000 -> 100000 //recommended is 200000
-        }
-}
-
 void CashCode::enableBillTypes()
 {
 
@@ -320,18 +254,50 @@ void CashCode::enableBillTypes()
 
     PollResponse poll=sendCommand(CCNet::deviceCommand::poll);
 
-    qDebug()<<poll;
-    qDebug()<<poll.status();
-    qDebug()<<poll.failureReason();
+
+}
+
+void CashCode::disableBillTypes()
+{
+    CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,QByteArray::fromHex("000000"));
+    qDebug()<<"enable bill types z1: " << res.z1();
+
+    PollResponse poll=sendCommand(CCNet::deviceCommand::poll);
 }
 
 PollResponse CashCode::poll()
 {
     PollResponse res = sendCommand(CCNet::deviceCommand::poll);
 
-    QThread::msleep(400);
+    QThread::msleep(200);
 
     return res;
 
+}
 
+void CashCode::operate()
+{
+    bool finished=false;
+    int stackedBill=-1;
+
+    while (!finished) {
+        PollResponse poll=this->poll();
+        PollResponse::Status status=poll.status();
+        //qDebug()<<"status: " << status;
+        switch (status) {
+
+        case PollResponse::Accepting :
+            //qDebug()<<"accepting";
+            break;
+        case PollResponse::EscrowPosition:
+            sendCommand(CCNet::deviceCommand::stackBill);
+            break;
+        case PollResponse::BillStacked:
+            stackedBill=poll.stackedBill();
+            finished=true;
+            break;
+        }
+
+    }
+    qDebug()<<"stacked bill: " << stackedBill;
 }

@@ -4,7 +4,7 @@
 #include <QByteArray>
 #define POLYNOMIAL 0x08408
 namespace CCNet {
-
+    static int  channels[8] = { 0,250,500,1000,5000,10000,25000,50000};
 
 
 enum offsets{

@@ -27,6 +27,34 @@ int PollResponse::stackedBill() const
     return CCNet::channels[z2()];
 }
 
+QDebug operator<<(QDebug debug, PollResponse::RejectReason reason)
+{
+
+    switch (reason) {
+    case PollResponse::InsertionError: debug << "PollResponse::InsertionError"; break;
+    case PollResponse::MagenaticError: debug << "PollResponse::MagenaticError"; break;
+    case PollResponse::BillInTheHead:  debug << "PollResponse::BillInTheHead"; break;
+    case PollResponse::Multiplying: debug << "PollResponse::Multiplying"; break;
+    case PollResponse::ConveyingError: debug << "PollResponse::ConveyingError"; break;
+    case PollResponse::IdentificationError: debug << "PollResponse::IdentificationError"; break;
+    case PollResponse::VerificationError:debug << "PollResponse::VerificationError"; break;
+    case PollResponse::OpticError: debug << "PollResponse::OpticError"; break;
+    case PollResponse::InhibitDenominationError:  debug << "PollResponse::InhibitDenominationError"; break;
+    case PollResponse::CapacitanceError:debug << "PollResponse::CapacitanceError"; break;
+    case PollResponse::OperationError:debug << "PollResponse::OperationError"; break;
+    case PollResponse::LengthError: debug << "PollResponse::LengthError"; break;
+    case PollResponse::UnrecognisedBarcode: debug << "PollResponse::UnrecognisedBarcode"; break;
+    case PollResponse::UvOptic: debug << "PollResponse::UvOptic"; break;
+    case PollResponse::IncorrectNumberOfCharactersInBarcode: debug << "PollResponse::IncorrectNumberOfCharactersInBarcode"; break;
+    case PollResponse::UnknownBarcodeStartSequence:  debug << "PollResponse::UnknownBarcodeStartSequence"; break;
+    case PollResponse::UnknownBarcodeStopSequence: debug << "PollResponse::UnknownBarcodeStopSequence"; break;
+
+    default:
+        debug << QString("PollResponse::RejectReason: Unknown value: %1 ").arg(QString(QByteArray::fromRawData((char *)&reason,1).toHex()));
+        break;
+    }
+}
+
 
 QDebug operator<<(QDebug debug, PollResponse::Status status)
 {

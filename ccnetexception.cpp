@@ -1,8 +1,13 @@
 #include "ccnetexception.h"
 
-CCNetException::CCNetException()
+CCNetException::CCNetException(const CCNetException::Type &type) : m_type(type)
 {
 
+}
+
+CCNetException::Type CCNetException::type() const
+{
+    return m_type;
 }
 
 QDebug operator<<(QDebug debug, CCNetException::Type type)
@@ -14,11 +19,14 @@ QDebug operator<<(QDebug debug, CCNetException::Type type)
     case CCNetException::SerialReadTimeout:
         debug << "CCNetException::SerialReadTimeout";
         break;
+    case CCNetException::SerialClearError:
+        debug << "CCNetException::SerialClearError";
+        break;
     case CCNetException::IllegalCommand:
         debug << "CCNetException::IllegalCommand";
         break;
-    case CCNetException::IncompleteResponse:
-        debug << "CCNetException::IncompleteResponse";
+    case CCNetException::IncompleteResponseTimout:
+        debug << "CCNetException::IncompleteResponseTimout";
         break;
     case CCNetException::NAK:
         debug << "CCNetException::NAK";
@@ -32,3 +40,5 @@ QDebug operator<<(QDebug debug, CCNetException::Type type)
     }
     return debug;
 }
+
+

@@ -6,6 +6,7 @@
 #include "getstatusresponse.h"
 #include "getbilltableresponse.h"
 #include "identificationresponse.h"
+#include "ccnetexception.h"
 CashCode::CashCode(QObject *parent) : QObject(parent)
 {
     QString arg=QCoreApplication::arguments().value(1);
@@ -31,72 +32,57 @@ void CashCode::close()
 
 CCNetResponse CashCode::sendCommand(const CCNet::deviceCommand &cmd, const quint8 &subCmd, const QByteArray &data)
 {
-
     QByteArray message=createMessage(cmd,subCmd,data);
 
-    serial.clear();
+    if(!serial.clear())
+        throw CCNetException(CCNetException::SerialClearError);
 
 
     if(!serial.write(message))
-        return CCNetResponse(QByteArray(),CCNetResponse::TimeoutError);
+        throw CCNetException(CCNetException::SerialWriteTimeout);
 
     if(!serial.waitForBytesWritten()) //official is 10ms
-        return CCNetResponse(QByteArray(),CCNetResponse::TimeoutError);
-
-    unsigned long utimeout= message.at(3)=='\x30' ? 2000000 : 10000;
+        throw CCNetException(CCNetException::SerialReadTimeout);
 
 
-    QThread::usleep(utimeout); //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
+    unsigned long utimeout= 10000;
+    QThread::usleep(utimeout);
 
     // start reading response
 
-
-    int timeout= message.at(3)=='\x30' ? 3000 : 3000;
+    int timeout = 3000;
 
     QByteArray result;
     if(serial.waitForReadyRead(timeout)){ //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
-
         result.append(serial.readAll());
-        if(result[CCNet::SyncOffset]!='\x02'){
+        if(result[CCNet::SyncOffset]!= CCNet::SyncByte){
             sendNAK();
-            //qDebug()<<result;
-            return CCNetResponse(result,CCNetResponse::TimeoutError);
+            throw CCNetException(CCNetException::SyncError);
         }
 
-
         while(!messageComplete(result)){ //tinter-byte(max.) 5.0 msec : The maximum time allowed between bytes in a block transmission
-            if(!serial.waitForReadyRead(10)){
+            if(!serial.waitForReadyRead(20)){
                 sendNAK();
-
-                return CCNetResponse(result,CCNetResponse::TimeoutError);
+                throw CCNetException(CCNetException::IncompleteResponseTimout);
             }
             result.append(serial.readAll());
         }
 
         //result is now complete, check crc16
 
-
         bool crcValid=validateResponse(result);
         if(!crcValid){
             sendNAK();
-            return CCNetResponse(result,CCNetResponse::CRCError);
+            throw CCNetException(CCNetException::CRCError);
         }
 
-
-        //QThread::usleep(20000); //20ms
         sendACK();
-        //qDebug()<<result;
         return CCNetResponse(result,CCNetResponse::NoError);
     }
     else{
-
-        //QThread::usleep(20000); //20ms
         sendNAK();
-        //qDebug()<<result;
-        return CCNetResponse(result,CCNetResponse::TimeoutError);
+        throw CCNetException(CCNetException::SerialReadTimeout);
     }
-
-
 }
 
 
@@ -121,7 +107,6 @@ bool CashCode::validateResponse(QByteArray data) const
     std::reverse(crc.begin(),crc.end());
     bool ok=false;
 
-
     quint16 messageCRC=crc.toHex().toUInt(&ok,16);
     if(!ok)
         return false;
@@ -129,7 +114,6 @@ bool CashCode::validateResponse(QByteArray data) const
     data.chop(2);
 
     return (messageCRC==Utils::crc16(data));
-
 }
 
 bool CashCode::sendACK()
@@ -151,17 +135,19 @@ bool CashCode::sendNAK()
 int CashCode::powerup()
 {
     PollResponse poll=this->poll();
-    //qDebug()<<poll.status();
 
     if(poll.status()==PollResponse::Disabled){
         qDebug()<<"validator is already ready to work !";
         return 0;
     }
 
+//    if(poll.status()==PollResponse::PowerUpWithBillinValidator){
+//        qDebug()<<"Bill was found inside the validator....returning bill !";
 
+//        return 0;
+//    }
 
-
-    if(poll.status()==PollResponse::PowerUp){
+    if(poll.status()==PollResponse::PowerUp || poll.status()==PollResponse::PowerUpWithBillinValidator){
         CCNetResponse reset=this->sendCommand(CCNet::deviceCommand::reset);
         qDebug()<<"reset: " << reset;
 
@@ -189,6 +175,7 @@ int CashCode::powerup()
                          return 0;
                         }
                         else{
+                            qDebug()<<"waiting ...";
                             //exit with some error code ?
                         }
                     }
@@ -248,20 +235,15 @@ QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8
 
 void CashCode::enableBillTypes()
 {
-
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,QByteArray::fromHex("FFFFFFFFFFFF"));
     qDebug()<<"enable bill types z1: " << res.z1();
-
     PollResponse poll=sendCommand(CCNet::deviceCommand::poll);
-
-
 }
 
 void CashCode::disableBillTypes()
 {
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,QByteArray::fromHex("000000"));
     qDebug()<<"enable bill types z1: " << res.z1();
-
     PollResponse poll=sendCommand(CCNet::deviceCommand::poll);
 }
 
@@ -270,9 +252,7 @@ PollResponse CashCode::poll()
     PollResponse res = sendCommand(CCNet::deviceCommand::poll);
 
     QThread::msleep(200);
-
     return res;
-
 }
 
 void CashCode::operate()

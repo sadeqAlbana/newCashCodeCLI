@@ -8,8 +8,9 @@ public:
     enum Type{
         SerialWriteTimeout,
         SerialReadTimeout,
+        SerialClearError,
         IllegalCommand,
-        IncompleteResponse,
+        IncompleteResponseTimout, //received response but timedout later
         NAK,
         CRCError,
         SyncError,
@@ -17,9 +18,15 @@ public:
     };
 
 
-    CCNetException();
+    CCNetException(const CCNetException::Type &type);
 
     friend QDebug operator<<(QDebug debug, CCNetException::Type type );
+
+
+    CCNetException::Type type() const;
+
+private:
+    Type m_type;
 
 
 

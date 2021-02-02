@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "identificationresponse.h"
 #include "getbilltableresponse.h"
+#include "ccnetexception.h"
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -35,16 +36,18 @@ int main(int argc, char *argv[])
 
 
 
+    try{
+
         cashcode.powerup();
 
-
-
-
-    QThread::sleep(2);
-
-    cashcode.enableBillTypes();
-    cashcode.operate();
-    cashcode.disableBillTypes();
+        QThread::sleep(2);
+        cashcode.enableBillTypes();
+        cashcode.operate();
+        cashcode.disableBillTypes();
+    }
+    catch(CCNetException e){
+        qDebug()<<"CCNet Error: " << e.type();
+    }
 
 
     cashcode.close();

@@ -7,6 +7,13 @@ namespace CCNet {
     static int  channels[8] = { 0,250,500,1000,5000,10000,25000,50000};
 
 
+enum Bytes : quint8 {
+    SyncByte = 0x02,
+    AddressByte = 0x03,
+    ACKByte     = 0x00,
+    NAKByte     = 0xFF
+};
+
 enum offsets{
     SyncOffset =0,
     ADRoffset  =1, //03h
@@ -46,6 +53,9 @@ Disabled. Otherwise an ILLEGAL COMMAND response will be returned.
 
 }
 
+//bool operator != (const char first, const CCNet::Bytes second){
+//    return ((quint8) first != (quint8)second);
+//}
 
 namespace Utils {
     quint16 crc16(const QByteArray &data);

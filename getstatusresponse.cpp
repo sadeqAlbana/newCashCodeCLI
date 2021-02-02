@@ -12,11 +12,11 @@ GetStatusResponse::GetStatusResponse(const CCNetResponse &other) : CCNetResponse
 
 QByteArray GetStatusResponse::billTypes() const
 {
-    return m_data.mid(CCNet::Z1,3);
+    return data(0,3);
 }
 
 QByteArray GetStatusResponse::securityLevels() const
 {
-    return m_data.mid(CCNet::Z1+3,3);
+    return data(3,3);
 
 }

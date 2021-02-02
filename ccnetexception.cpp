@@ -37,6 +37,9 @@ QDebug operator<<(QDebug debug, CCNetException::Type type)
     case CCNetException::SyncError:
         debug << "CCNetException::SyncError";
         break;
+    case CCNetException::OutOfRangeIndex:
+        debug << "CCNetException::OutOfRangeIndex";
+        break;
     }
     return debug;
 }

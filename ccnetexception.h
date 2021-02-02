@@ -14,6 +14,7 @@ public:
         NAK,
         CRCError,
         SyncError,
+        OutOfRangeIndex
 
     };
 

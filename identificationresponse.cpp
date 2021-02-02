@@ -12,16 +12,15 @@ IdentificationResponse::IdentificationResponse(const CCNetResponse &other) : CCN
 
 QString IdentificationResponse::partNumber() const
 {
-    return m_data.mid(CCNet::Z1,15);
+    return data(0,15);
 }
 
 QString IdentificationResponse::serialNumber() const
 {
-    return m_data.mid(CCNet::Z1+15,12);
+    return data(15,12);
 }
 
 QByteArray IdentificationResponse::assetNumber() const
 {
-    return m_data.mid(CCNet::Z1+27,7);
-
+    return data(27,7);
 }

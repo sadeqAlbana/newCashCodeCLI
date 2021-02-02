@@ -17,13 +17,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
 
-
-
-
     CashCode cashcode;
-
-
-
 
     if(!cashcode.open()){
         qDebug()<<"could not open !";

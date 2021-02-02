@@ -1,11 +1,11 @@
 #include "getbilltableresponse.h"
 
-GetBillTableResponse::GetBillTableResponse(const QByteArray &data, const CCNetResponse::Error error) :CCNetResponse(data,error)
+GetBillTableResponse::GetBillTableResponse(const QByteArray &data) :CCNetResponse(data)
 {
 
 }
 
-GetBillTableResponse::GetBillTableResponse(const CCNetResponse &other) : CCNetResponse(other.data(),other.error())
+GetBillTableResponse::GetBillTableResponse(const CCNetResponse &other) : CCNetResponse(other.data())
 {
 
 }

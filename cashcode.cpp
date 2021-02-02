@@ -77,7 +77,7 @@ CCNetResponse CashCode::sendCommand(const CCNet::deviceCommand &cmd, const quint
         }
 
         sendACK();
-        return CCNetResponse(result,CCNetResponse::NoError);
+        return CCNetResponse(result);
     }
     else{
         sendNAK();
@@ -250,7 +250,12 @@ void CashCode::disableBillTypes()
 PollResponse CashCode::poll()
 {
     PollResponse res = sendCommand(CCNet::deviceCommand::poll);
-
+    if(res.status()==PollResponse::GenericFailure){
+        qDebug()<<res.status() << " "  << res.failureReason();
+    }
+    if(res.status()==PollResponse::Rejecting){
+        qDebug()<<res.status() << " " << res.rejectReason();
+    }
     QThread::msleep(200);
     return res;
 }
@@ -265,6 +270,15 @@ void CashCode::operate()
         PollResponse::Status status=poll.status();
         //qDebug()<<"status: " << status;
         switch (status) {
+
+//        case PollResponse::Rejecting:
+//            qDebug()<<"rejecting: "<<poll.rejectReason();
+//            break;
+//        case PollResponse::GenericFailure:
+//            qDebug()<<"generic failure: "<<poll.failureReason();
+//            break;
+
+
 
         case PollResponse::Accepting :
             //qDebug()<<"accepting";

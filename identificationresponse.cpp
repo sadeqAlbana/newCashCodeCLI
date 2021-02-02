@@ -1,11 +1,11 @@
 #include "identificationresponse.h"
 
-IdentificationResponse::IdentificationResponse(const QByteArray &data, const CCNetResponse::Error error) :CCNetResponse(data,error)
+IdentificationResponse::IdentificationResponse(const QByteArray &data) :CCNetResponse(data)
 {
 
 }
 
-IdentificationResponse::IdentificationResponse(const CCNetResponse &other) : CCNetResponse(other.data(),other.error())
+IdentificationResponse::IdentificationResponse(const CCNetResponse &other) : CCNetResponse(other.data())
 {
 
 }

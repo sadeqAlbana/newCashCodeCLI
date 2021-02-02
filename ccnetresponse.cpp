@@ -1,6 +1,6 @@
 ﻿#include "ccnetresponse.h"
 #include <QDebug>
-CCNetResponse::CCNetResponse(const QByteArray &data,const CCNetResponse::Error error) : m_data(data),m_error(error)
+CCNetResponse::CCNetResponse(const QByteArray &data) : m_data(data)
 {
 
 }
@@ -13,14 +13,10 @@ quint8 CCNetResponse::z1() const
 quint8 CCNetResponse::z2() const
 {
     return (unsigned char) m_data[4];
-
 }
 
 
-CCNetResponse::Error CCNetResponse::error() const
-{
-    return m_error;
-}
+
 
 int CCNetResponse::responseLength() const
 {
@@ -42,7 +38,7 @@ QDebug operator <<(QDebug dbg, const CCNetResponse &res)
     QDebugStateSaver saver(dbg);
     //dbg.noquote() <<" response: \n";
 
-    dbg.noquote() << res.m_data.toHex(' ');
+    dbg <<"CCNetResponse: " << res.m_data.toHex(' ');
     return dbg.noquote();
 }
 

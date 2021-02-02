@@ -1,6 +1,6 @@
 #include "pollresponse.h"
 
-PollResponse::PollResponse(const QByteArray &data, const CCNetResponse::Error error) : CCNetResponse (data,error)
+PollResponse::PollResponse(const QByteArray &data) : CCNetResponse (data)
 {
 
 }
@@ -12,14 +12,17 @@ PollResponse::PollResponse(const CCNetResponse &other) : CCNetResponse (other)
 
 PollResponse::Status PollResponse::status() const
 {
-    qDebug()<<PollResponse::Status(z1());
     return PollResponse::Status(z1());
 }
 
 PollResponse::GenericFailureReason PollResponse::failureReason() const
 {
     return PollResponse::GenericFailureReason(z2());
+}
 
+PollResponse::RejectReason PollResponse::rejectReason() const
+{
+    return PollResponse::RejectReason(z2());
 }
 
 int PollResponse::stackedBill() const
@@ -136,17 +139,6 @@ QDebug operator<<(QDebug debug, PollResponse::Status status)
 
 QDebug operator<<(QDebug debug, PollResponse::GenericFailureReason failure)
 {
-
-//        StackMotorFailure = 0x50,
-//        TransportMotorSpeedFailure = 0x51,
-//        TransportMotorFailure = 0x52,
-//        AligningMotorFailure = 0x53,
-//        InitialCassetteStatusFailure = 0x54,
-//        OpticalCanalFailure = 0x55,
-//        MagenaticCanalFailure = 0x56,
-//        CapacitanceCanalFailure = 0x5F,
-//    };
-
     switch (failure) {
     case PollResponse::StackMotorFailure:
         debug << "PollResponse::StackMotorFailure";

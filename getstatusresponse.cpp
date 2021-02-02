@@ -1,6 +1,6 @@
 #include "getstatusresponse.h"
 
-GetStatusResponse::GetStatusResponse(const QByteArray &data, const Error error) : CCNetResponse (data,error)
+GetStatusResponse::GetStatusResponse(const QByteArray &data) : CCNetResponse (data)
 {
 
 }

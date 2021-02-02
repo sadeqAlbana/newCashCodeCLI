@@ -5,7 +5,7 @@
 class GetStatusResponse : public CCNetResponse
 {
 public:
-    GetStatusResponse(const QByteArray &data, const CCNetResponse::Error error);
+    GetStatusResponse(const QByteArray &data);
     GetStatusResponse(const CCNetResponse &other);
 
 

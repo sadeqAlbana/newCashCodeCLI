@@ -78,11 +78,12 @@ public:
 
 
 public:
-    PollResponse(const QByteArray &data, const CCNetResponse::Error error);
+    PollResponse(const QByteArray &data);
     PollResponse(const CCNetResponse &other);
 
     PollResponse::Status status() const;
     PollResponse::GenericFailureReason failureReason() const;
+    PollResponse::RejectReason rejectReason() const;
 
     int stackedBill() const;
 

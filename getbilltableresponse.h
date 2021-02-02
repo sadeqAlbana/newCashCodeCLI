@@ -5,7 +5,7 @@
 class GetBillTableResponse : public CCNetResponse
 {
 public:
-    GetBillTableResponse(const QByteArray &data, const CCNetResponse::Error error);
+    GetBillTableResponse(const QByteArray &data);
     GetBillTableResponse(const CCNetResponse &other);
 
     QByteArrayList billTable() const;

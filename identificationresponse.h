@@ -17,7 +17,7 @@ as binary code.
 class IdentificationResponse : public CCNetResponse
 {
 public:
-    IdentificationResponse(const QByteArray &data, const CCNetResponse::Error error);
+    IdentificationResponse(const QByteArray &data);
     IdentificationResponse(const CCNetResponse &other);
 
     QString partNumber() const;

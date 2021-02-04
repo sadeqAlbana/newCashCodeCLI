@@ -5,7 +5,7 @@ IdentificationResponse::IdentificationResponse(const QByteArray &data) :CCNetRes
 
 }
 
-IdentificationResponse::IdentificationResponse(const CCNetResponse &other) : CCNetResponse(other.data())
+IdentificationResponse::IdentificationResponse(const CCNetResponse &other) : CCNetResponse(other)
 {
 
 }

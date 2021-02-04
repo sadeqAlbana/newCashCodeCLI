@@ -12,12 +12,22 @@
 #include "identificationresponse.h"
 #include "getbilltableresponse.h"
 #include "ccnetexception.h"
+#include "pollresponse.h"
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
 
     CashCode cashcode;
+
+    //PollResponse::Status status=PollResponse::Busy;
+
+//    QByteArray array((char *)&status,1);
+//    //array.detach();
+//    qDebug()<<&status;
+//    qDebug()<<(void*)array.constData();
+//    return 0;
+
 
     if(!cashcode.open()){
         qDebug()<<"could not open !";
@@ -38,9 +48,10 @@ int main(int argc, char *argv[])
         cashcode.enableBillTypes();
         cashcode.operate();
         cashcode.disableBillTypes();
+
     }
     catch(CCNetException e){
-        qDebug()<<"CCNet Error: " << e.type();
+        qDebug()<<"CCNet Error: " << e.type() << " " << e.callerMethod() << " " << e.additionalInfo();
     }
 
 

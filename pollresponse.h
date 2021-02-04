@@ -30,6 +30,7 @@ public:
         EscrowPosition = 0x80, //has Z2
         BillStacked = 0x81, // has Z2
         BillReturned = 0x82 // has Z2
+
     };
 
     /*
@@ -66,6 +67,8 @@ public:
         OpticalCanalFailure = 0x55,
         MagenaticCanalFailure = 0x56,
         CapacitanceCanalFailure = 0x5F,
+
+
     };
 
 
@@ -91,8 +94,16 @@ public:
     friend QDebug operator<<(QDebug debug, PollResponse::RejectReason reason);
     friend QDebug operator<<(QDebug debug, PollResponse::GenericFailureReason failure);
 
+
+
+
+
+
 };
 
+QString toString(PollResponse::Status status);
+QString toString(PollResponse::RejectReason reason);
+QString toString(PollResponse::GenericFailureReason failure);
 
 QDebug operator<<(QDebug debug, PollResponse::Status status );
 QDebug operator<<(QDebug debug, PollResponse::RejectReason reason);

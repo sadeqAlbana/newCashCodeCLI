@@ -55,7 +55,8 @@ CCNetResponse CashCode::sendCommand(const CCNet::deviceCommand &cmd, const quint
     QByteArray result;
     if(serial.waitForReadyRead(timeout)){ //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
         result.append(serial.readAll());
-        if(result[CCNet::SyncOffset]!= CCNet::SyncByte){
+        if((quint8)result[CCNet::SyncOffset]!= 0x02){
+            qDebug()<<"result : " << result.toHex(' ');
             sendNAK();
             throw CCNetException(CCNetException::SyncError);
         }
@@ -149,7 +150,7 @@ int CashCode::powerup()
 
     if(poll.status()==PollResponse::PowerUp || poll.status()==PollResponse::PowerUpWithBillinValidator){
         CCNetResponse reset=this->sendCommand(CCNet::deviceCommand::reset);
-        qDebug()<<"reset: " << reset;
+        //qDebug()<<"reset: " << reset;
 
         poll=this->poll();
         if(poll.status()==PollResponse::Initilize){
@@ -188,9 +189,6 @@ int CashCode::powerup()
 
 }
 
-
-
-
 QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8 &subCmd, QByteArray data)
 {
     QByteArray message;
@@ -208,11 +206,11 @@ QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8
     if(packageLength>250){
         message.append('\x00'); //set LNG to 0 then append package size to data block bytes 0 and 1
         packageLength+=2; //two length bytes
-        QByteArray length=QByteArray::fromRawData((char *) &packageLength,2);
+        QByteArray length=QByteArray((char *) &packageLength,2);
         std::reverse(length.begin(),length.end()); // LNG always follows MSB first
         data.prepend(length);
     }else{
-        message.append(QByteArray::fromRawData((char *)&packageLength,1)); //LNG
+        message.append(QByteArray((char *)&packageLength,1)); //LNG
     }
 
     message.append((quint8)cmd);
@@ -223,12 +221,11 @@ QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8
     message.append(data);
 
     quint16 crc=Utils::crc16(message);
-    QByteArray crcData=QByteArray::fromRawData((char *)&crc,2);
-    //std::reverse(crcData.begin(),crcData.end());
+    QByteArray crcData=QByteArray((char *)&crc,2);
 //    qDebug()<<"Crc data:" <<crc << " ---- " << crcData;
 
     message.append(crcData);
-    //qDebug()<<"message hex: " << message.toHex();
+
     return message;
 }
 
@@ -252,6 +249,7 @@ PollResponse CashCode::poll()
     PollResponse res = sendCommand(CCNet::deviceCommand::poll);
     if(res.status()==PollResponse::GenericFailure){
         qDebug()<<res.status() << " "  << res.failureReason();
+
     }
     if(res.status()==PollResponse::Rejecting){
         qDebug()<<res.status() << " " << res.rejectReason();

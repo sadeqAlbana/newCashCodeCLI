@@ -1,28 +1,31 @@
 ﻿#include "ccnetresponse.h"
 #include <QDebug>
 #include "ccnetexception.h"
-CCNetResponse::CCNetResponse(const QByteArray &data) : m_message(data),resData(m_message)
+CCNetResponse::CCNetResponse(const QByteArray &data) : m_message(data),resData(data)
 {
+    m_message.detach();
+    resData.detach();
     resData.chop(2);
     resData.remove(0,3);
 }
 
 quint8 CCNetResponse::z1() const
 {
-    //return (unsigned char) m_data[3];
+    return data(0);
 }
 
 quint8 CCNetResponse::z2() const
 {
-    //return this->data(1);
+    return data(1);
 }
 
-quint8 CCNetResponse::data(int index)
+quint8 CCNetResponse::data(int index) const
 {
     if(index>=resData.size() || index<0)
-        throw CCNetException(CCNetException::OutOfRangeIndex);
+        throw CCNetException(CCNetException::OutOfRangeIndex,Q_FUNC_INFO,QJsonObject{{"index",index},{"data_size",dataLength()},
+                             {"message_size",messageLength()}});
 
-    return resData[index];
+    return (quint8)resData[index];
 
 }
 
@@ -34,7 +37,7 @@ int CCNetResponse::messageLength() const
 
 int CCNetResponse::dataLength() const
 {
-    return (int)(unsigned char) m_message[CCNet::LNGoffset];
+    return resData.length();
 }
 
 QByteArray CCNetResponse::data() const
@@ -45,9 +48,16 @@ QByteArray CCNetResponse::data() const
 QByteArray CCNetResponse::data(int index, int length) const
 {
     if((index+length)>data().length())
-        throw CCNetException(CCNetException::OutOfRangeIndex);
+        throw CCNetException(CCNetException::OutOfRangeIndex,Q_FUNC_INFO,QJsonObject{{"index",index},{"length",length},
+                                                                                     {"data_size",dataLength()},
+                             {"message_size",messageLength()}});
 
     return resData.mid(index,length);
+}
+
+QByteArray CCNetResponse::message() const
+{
+    return m_message;
 }
 
 QDebug operator <<(QDebug dbg, const CCNetResponse &res)

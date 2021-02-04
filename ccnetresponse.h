@@ -19,9 +19,11 @@ public:
 
     friend QDebug operator <<(QDebug dbg, const CCNetResponse &res);
 
-    quint8 data(int index);
+    quint8 data(int index) const;
     QByteArray data() const;
     QByteArray data(int index, int length) const;
+
+    QByteArray message() const;
 
 protected:
     QByteArray m_message;

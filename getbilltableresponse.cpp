@@ -5,7 +5,7 @@ GetBillTableResponse::GetBillTableResponse(const QByteArray &data) :CCNetRespons
 
 }
 
-GetBillTableResponse::GetBillTableResponse(const CCNetResponse &other) : CCNetResponse(other.data())
+GetBillTableResponse::GetBillTableResponse(const CCNetResponse &other) : CCNetResponse(other)
 {
 
 }

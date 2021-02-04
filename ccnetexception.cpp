@@ -1,6 +1,10 @@
 #include "ccnetexception.h"
 
-CCNetException::CCNetException(const CCNetException::Type &type) : m_type(type)
+
+
+CCNetException::CCNetException(const CCNetException::Type &type, const QString &method, const QJsonObject &additionalInfo) : m_type(type),
+    m_callerMethod(method),
+    m_additionalInfo(additionalInfo)
 {
 
 }
@@ -10,38 +14,59 @@ CCNetException::Type CCNetException::type() const
     return m_type;
 }
 
-QDebug operator<<(QDebug debug, CCNetException::Type type)
+
+
+QString CCNetException::callerMethod() const
+{
+    return m_callerMethod;
+}
+
+QJsonObject CCNetException::additionalInfo() const
+{
+    return m_additionalInfo;
+}
+QString toString(CCNetException::Type type)
+
 {
     switch (type) {
     case CCNetException::SerialWriteTimeout:
-        debug << "CCNetException::SerialWriteTimeout";
-        break;
+        return "CCNetException::SerialWriteTimeout";
+
     case CCNetException::SerialReadTimeout:
-        debug << "CCNetException::SerialReadTimeout";
-        break;
+        return "CCNetException::SerialReadTimeout";
+
     case CCNetException::SerialClearError:
-        debug << "CCNetException::SerialClearError";
-        break;
+        return "CCNetException::SerialClearError";
+
     case CCNetException::IllegalCommand:
-        debug << "CCNetException::IllegalCommand";
-        break;
+        return "CCNetException::IllegalCommand";
+
     case CCNetException::IncompleteResponseTimout:
-        debug << "CCNetException::IncompleteResponseTimout";
-        break;
+        return "CCNetException::IncompleteResponseTimout";
+
     case CCNetException::NAK:
-        debug << "CCNetException::NAK";
-        break;
+        return "CCNetException::NAK";
+
     case CCNetException::CRCError:
-        debug << "CCNetException::CRCError";
-        break;
+        return "CCNetException::CRCError";
+
     case CCNetException::SyncError:
-        debug << "CCNetException::SyncError";
-        break;
+        return "CCNetException::SyncError";
+
     case CCNetException::OutOfRangeIndex:
-        debug << "CCNetException::OutOfRangeIndex";
-        break;
+        return "CCNetException::OutOfRangeIndex";
+
+    case CCNetException::GenericFailure:
+        return "CCNetException::GenericFailure";
+
     }
-    return debug;
 }
 
 
+QDebug operator<<(QDebug debug, CCNetException::Type type)
+
+{
+    debug << toString(type);
+
+    return debug;
+}

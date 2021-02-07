@@ -142,49 +142,51 @@ int CashCode::powerup()
         return 0;
     }
 
-//    if(poll.status()==PollResponse::PowerUpWithBillinValidator){
-//        qDebug()<<"Bill was found inside the validator....returning bill !";
+    //    if(poll.status()==PollResponse::PowerUpWithBillinValidator){
+    //        qDebug()<<"Bill was found inside the validator....returning bill !";
 
-//        return 0;
-//    }
+    //        return 0;
+    //    }
 
-    if(poll.status()==PollResponse::PowerUp || poll.status()==PollResponse::PowerUpWithBillinValidator){
+
+
+    if(poll.status()==PollResponse::PowerUp || poll.status()==PollResponse::PowerUpWithBillinValidator || poll.status()==PollResponse::PowerUpWithBillinStacker){
         CCNetResponse reset=this->sendCommand(CCNet::deviceCommand::reset);
         //qDebug()<<"reset: " << reset;
 
         poll=this->poll();
         if(poll.status()==PollResponse::Initilize){
+            poll=this->poll();
+            GetStatusResponse getStatus=this->sendCommand(CCNet::deviceCommand::getStatus);
+            qDebug()<<getStatus.billTypes();
+            GetBillTableResponse getBillTable=this->sendCommand(CCNet::deviceCommand::getBillTable);
+            qDebug()<<getBillTable.billTable();
+
+            //should set security but leave it for now
+            CCNetResponse setSecurity=this->sendCommand(CCNet::deviceCommand::setSecurity,0,QByteArray::fromHex("000000"));
+            qDebug()<<"set security: "<<setSecurity;
+
+            IdentificationResponse identification=this->sendCommand(CCNet::deviceCommand::identification);
+            qDebug()<<identification.partNumber();
+
+
+
+            for(int i=0; i<50; i++){
                 poll=this->poll();
-                    GetStatusResponse getStatus=this->sendCommand(CCNet::deviceCommand::getStatus);
-                    qDebug()<<getStatus.billTypes();
-                    GetBillTableResponse getBillTable=this->sendCommand(CCNet::deviceCommand::getBillTable);
-                    qDebug()<<getBillTable.billTable();
-
-                    //should set security but leave it for now
-                    CCNetResponse setSecurity=this->sendCommand(CCNet::deviceCommand::setSecurity,0,QByteArray::fromHex("000000"));
-                    qDebug()<<"set security: "<<setSecurity;
-
-                    IdentificationResponse identification=this->sendCommand(CCNet::deviceCommand::identification);
-                    qDebug()<<identification.partNumber();
+                if(poll.status()==PollResponse::Disabled){
+                    qDebug()<<"bill validator ready to work !";
+                    return 0;
+                }
+                else{
+                    qDebug()<<"waiting ...";
+                    //exit with some error code ?
+                }
+            }
 
 
+        } //initilize
 
-                    for(int i=0; i<50; i++){
-                        poll=this->poll();
-                        if(poll.status()==PollResponse::Disabled){
-                         qDebug()<<"bill validator ready to work !";
-                         return 0;
-                        }
-                        else{
-                            qDebug()<<"waiting ...";
-                            //exit with some error code ?
-                        }
-                    }
-
-
-                } //initilize
-
-        } //powerup
+    } //powerup
 
 
 }
@@ -222,7 +224,7 @@ QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8
 
     quint16 crc=Utils::crc16(message);
     QByteArray crcData=QByteArray((char *)&crc,2);
-//    qDebug()<<"Crc data:" <<crc << " ---- " << crcData;
+    //    qDebug()<<"Crc data:" <<crc << " ---- " << crcData;
 
     message.append(crcData);
 
@@ -273,25 +275,22 @@ void CashCode::operate()
 
     while (!finished) {
         PollResponse poll=this->poll();
+
         PollResponse::Status status=poll.status();
         //qDebug()<<"status: " << status;
         switch (status) {
 
-        case PollResponse::Pause:
+        case PollResponse::Pause: //deadlock state
         {
             //TODO
         }
             break;
 
-        case PollResponse::Busy: //deadlock state
-        {
-            //TODO
-        }
-            break;
+
 
         case PollResponse::BillReturned:
         {
-            logReturnedBill(poll.billType());
+            log(status,poll.billType());
         }
             break;
 
@@ -332,14 +331,16 @@ void CashCode::operate()
         {
             int bill=poll.billType();
             qDebug()<<bill;
-
-            //sendCommand(CCNet::deviceCommand::stackBill);
+            log(status,bill);
+            sendCommand(CCNet::deviceCommand::stackBill);
             //sendCommand(CCNet::deviceCommand::returnBill);
         }
 
             break;
         case PollResponse::BillStacked:
+
             stackedBill=poll.billType();
+            log(status,stackedBill);
             finished=true;
             break;
         }
@@ -348,7 +349,67 @@ void CashCode::operate()
     qDebug()<<"stacked bill: " << stackedBill;
 }
 
-void CashCode::logReturnedBill(int bill)
+void CashCode::log(PollResponse::Status status, int billType)
 {
+    QString statusStr=toString(status);
 
 }
+
+void CashCode::enableBillTypes(int bill)
+{
+    std::vector<quint8> params = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    switch (bill) {
+    case 1000:
+        params = {0x80, 0x20, 0x08, 0x80, 0x20, 0x08};
+        break;
+    case 5000:
+        params = {0x00, 0x00, 0x10, 0x00, 0x00, 0x10};
+        break;
+    case 6000:
+        params = {0x00, 0x20, 0x18, 0x00, 0x20, 0x18};
+        break;
+    case 10000:
+        params = {0x00, 0x80, 0x20, 0x00, 0x80, 0x20};
+        break;
+    case 15000:
+        params = {0x00, 0x80, 0x30, 0x00, 0x80, 0x30};
+        break;
+    case 16000:
+        params = {0x80 ,0xA0, 0x38, 0x80, 0xA0, 0x38};
+        break;
+    case 25000:
+        params = {0x01, 0x00, 0x40 ,0x01, 0x00, 0x40};
+        break;
+    case 40000:
+        params = {0x01, 0x80, 0x70, 0x01, 0x80, 0x70};
+        break;
+    case 41000:
+        params = {0x81, 0xA0, 0x78, 0x81, 0xA0, 0x78};
+        break;
+    case 50000:
+        params = {0x02, 0x00, 0x80, 0x02, 0x00, 0x80};
+        break;
+    case 65000:
+        params = {0x03, 0x80, 0xF0, 0x03, 0x80, 0xF0};
+        break;
+    case 90000:
+        params = {0x03, 0x80 ,0xF0, 0x03, 0x80, 0xF0};
+        break;
+    case 91000:
+        params = {0x83, 0xA0, 0xF8, 0x83, 0xA0, 0xF8};
+        break;
+    default:
+        params = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        break;
+    }
+
+    QByteArray data((char *)params.data(),params.size());
+
+    CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,data);
+    qDebug()<<"enable bill types z1: " << res.z1();
+    PollResponse poll=this->poll();
+
+}
+
+

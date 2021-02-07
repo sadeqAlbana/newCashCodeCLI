@@ -5,6 +5,7 @@
 #include "serialport.h"
 #include "utils.h"
 #include "ccnetresponse.h"
+#include "pollresponse.h"
 class PollResponse;
 class CashCode : public QObject
 {
@@ -46,7 +47,11 @@ public:
     PollResponse poll();
 
     void operate();
-    void logReturnedBill(int bill);
+    void log(PollResponse::Status status, int z2);
+    void log(PollResponse::Status status,PollResponse::GenericFailureReason);
+    void log(PollResponse::Status status, PollResponse::RejectReason);
+
+    void enableBillTypes(int bill);
 
 
 

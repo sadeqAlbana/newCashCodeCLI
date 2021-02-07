@@ -15,9 +15,13 @@ public:
         CRCError,
         SyncError,
         OutOfRangeIndex,
-        GenericFailure
+        GenericFailure,
+        RejectionError
 
     };
+
+
+
 
 
     CCNetException(const CCNetException::Type &type,const QString &method=QString(),const QJsonObject &additionalInfo=QJsonObject());
@@ -37,11 +41,6 @@ private:
     QString m_description;
     QString m_callerMethod;
     QJsonObject m_additionalInfo;
-
-
-
-
-
 };
 
 QString toString(CCNetException::Type type);

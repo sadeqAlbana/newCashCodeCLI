@@ -234,14 +234,14 @@ void CashCode::enableBillTypes()
 {
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,QByteArray::fromHex("FFFFFFFFFFFF"));
     qDebug()<<"enable bill types z1: " << res.z1();
-    PollResponse poll=sendCommand(CCNet::deviceCommand::poll);
+    PollResponse poll=this->poll();
 }
 
 void CashCode::disableBillTypes()
 {
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,QByteArray::fromHex("000000"));
     qDebug()<<"enable bill types z1: " << res.z1();
-    PollResponse poll=sendCommand(CCNet::deviceCommand::poll);
+    PollResponse poll=this->poll();
 }
 
 PollResponse CashCode::poll()
@@ -249,10 +249,18 @@ PollResponse CashCode::poll()
     PollResponse res = sendCommand(CCNet::deviceCommand::poll);
     if(res.status()==PollResponse::GenericFailure){
         qDebug()<<res.status() << " "  << res.failureReason();
-
+        throw CCNetException(CCNetException::GenericFailure,Q_FUNC_INFO,QJsonObject{{"response",QString(res.message().toHex(' '))},
+                                                                                    {"failureReason",toString(res.failureReason())}});
     }
-    if(res.status()==PollResponse::Rejecting){
+    else if(res.status()==PollResponse::Rejecting){
         qDebug()<<res.status() << " " << res.rejectReason();
+    }
+    else if(res.status()==PollResponse::Busy){
+        qDebug()<<res.status() << " for: " << (res.z2()*100);
+        QThread::msleep((res.z2()*100));
+    }
+    else{
+        qDebug()<<res.status();
     }
     QThread::msleep(200);
     return res;
@@ -269,27 +277,78 @@ void CashCode::operate()
         //qDebug()<<"status: " << status;
         switch (status) {
 
-//        case PollResponse::Rejecting:
-//            qDebug()<<"rejecting: "<<poll.rejectReason();
-//            break;
-//        case PollResponse::GenericFailure:
-//            qDebug()<<"generic failure: "<<poll.failureReason();
-//            break;
+        case PollResponse::Pause:
+        {
+            //TODO
+        }
+            break;
 
+        case PollResponse::Busy: //deadlock state
+        {
+            //TODO
+        }
+            break;
+
+        case PollResponse::BillReturned:
+        {
+            logReturnedBill(poll.billType());
+        }
+            break;
+
+        case PollResponse::Cheated: //happens when you pull the bill manually from the stacker side
+        {
+            //TODO
+        }
+            break;
+
+        case PollResponse::ValidatorJammed: //happens when you block the validator from acceptance path
+        {
+            //TODO
+        }
+            break;
+
+        case PollResponse::DropCassetteFull:
+        {
+            //TODO
+        }
+            break;
+        case PollResponse::DropCassetteJammed: //happens when you hold the bill from stacker side when the validator is trying to return it
+        {
+            //TODO
+        }
+            break;
+
+        case PollResponse::DropCassetteOutOfPosition:
+        {
+            //TODO
+        }
+            break;
 
 
         case PollResponse::Accepting :
             //qDebug()<<"accepting";
             break;
         case PollResponse::EscrowPosition:
-            sendCommand(CCNet::deviceCommand::stackBill);
+        {
+            int bill=poll.billType();
+            qDebug()<<bill;
+
+            //sendCommand(CCNet::deviceCommand::stackBill);
+            //sendCommand(CCNet::deviceCommand::returnBill);
+        }
+
             break;
         case PollResponse::BillStacked:
-            stackedBill=poll.stackedBill();
+            stackedBill=poll.billType();
             finished=true;
             break;
         }
 
     }
     qDebug()<<"stacked bill: " << stackedBill;
+}
+
+void CashCode::logReturnedBill(int bill)
+{
+
 }

@@ -27,10 +27,12 @@ PollResponse::RejectReason PollResponse::rejectReason() const
     return PollResponse::RejectReason(z2());
 }
 
-int PollResponse::stackedBill() const
+int PollResponse::billType() const
 {
     return CCNet::channels[z2()];
 }
+
+
 
 QDebug operator<<(QDebug debug, PollResponse::RejectReason reason)
 {

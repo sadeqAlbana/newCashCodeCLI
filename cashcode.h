@@ -46,6 +46,7 @@ public:
     PollResponse poll();
 
     void operate();
+    void logReturnedBill(int bill);
 
 
 

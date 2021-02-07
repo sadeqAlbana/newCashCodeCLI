@@ -88,7 +88,7 @@ public:
     PollResponse::GenericFailureReason failureReason() const;
     PollResponse::RejectReason rejectReason() const;
 
-    int stackedBill() const;
+    int billType() const; //valid for events with credit (ESCROW,STACKED,RETURNED)
 
     friend QDebug operator<<(QDebug debug, PollResponse::Status status );
     friend QDebug operator<<(QDebug debug, PollResponse::RejectReason reason);

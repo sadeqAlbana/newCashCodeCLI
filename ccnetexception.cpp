@@ -58,6 +58,9 @@ QString toString(CCNetException::Type type)
 
     case CCNetException::GenericFailure:
         return "CCNetException::GenericFailure";
+    case CCNetException::RejectionError:
+        return "CCNetException::RejectionError";
+
 
     }
 }

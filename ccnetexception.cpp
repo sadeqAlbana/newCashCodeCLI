@@ -60,8 +60,16 @@ QString toString(CCNetException::Type type)
         return "CCNetException::GenericFailure";
     case CCNetException::RejectionError:
         return "CCNetException::RejectionError";
-
-
+    case CCNetException::ValidatorJammedError:
+        return "CCNetException::ValidatorJammedError";
+    case CCNetException::DropCassetteJammedError:
+        return "CCNetException::DropCassetteJammedError";
+    case CCNetException::DropCassetteFullError:
+        return "CCNetException::DropCassetteFullError";
+    case CCNetException::PausedError:
+        return "CCNetException::PausedError";
+    case CCNetException::CheatedError:
+        return "CCNetException::CheatedError";
     }
 }
 

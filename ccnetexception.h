@@ -16,7 +16,13 @@ public:
         SyncError,
         OutOfRangeIndex,
         GenericFailure,
-        RejectionError
+        RejectionError,
+        ValidatorJammedError,
+        DropCassetteFullError,
+        DropCassetteJammedError,
+        DropCassetteOutOfPositionError,
+        PausedError,
+        CheatedError,
 
     };
 

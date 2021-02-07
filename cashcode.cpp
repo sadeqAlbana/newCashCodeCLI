@@ -142,14 +142,6 @@ int CashCode::powerup()
         return 0;
     }
 
-    //    if(poll.status()==PollResponse::PowerUpWithBillinValidator){
-    //        qDebug()<<"Bill was found inside the validator....returning bill !";
-
-    //        return 0;
-    //    }
-
-
-
     if(poll.status()==PollResponse::PowerUp || poll.status()==PollResponse::PowerUpWithBillinValidator || poll.status()==PollResponse::PowerUpWithBillinStacker){
         CCNetResponse reset=this->sendCommand(CCNet::deviceCommand::reset);
         //qDebug()<<"reset: " << reset;
@@ -232,17 +224,11 @@ QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8
 }
 
 
-void CashCode::enableBillTypes()
-{
-    CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,QByteArray::fromHex("FFFFFFFFFFFF"));
-    qDebug()<<"enable bill types z1: " << res.z1();
-    PollResponse poll=this->poll();
-}
 
 void CashCode::disableBillTypes()
 {
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,QByteArray::fromHex("000000"));
-    qDebug()<<"enable bill types z1: " << res.z1();
+    qDebug()<<"disable bill types: " << res.z1();
     PollResponse poll=this->poll();
 }
 
@@ -272,6 +258,7 @@ void CashCode::operate()
 {
     bool finished=false;
     int stackedBill=-1;
+    bool billStacked=false;
 
     while (!finished) {
         PollResponse poll=this->poll();
@@ -280,78 +267,81 @@ void CashCode::operate()
         //qDebug()<<"status: " << status;
         switch (status) {
 
-        case PollResponse::Pause: //deadlock state
-        {
-            //TODO
-        }
-            break;
-
-
-
-        case PollResponse::BillReturned:
-        {
-            log(status,poll.billType());
-        }
-            break;
-
         case PollResponse::Cheated: //happens when you pull the bill manually from the stacker side
-        {
-            //TODO
-        }
-            break;
+            throw CCNetException(CCNetException::CheatedError);
 
         case PollResponse::ValidatorJammed: //happens when you block the validator from acceptance path
-        {
-            //TODO
-        }
-            break;
+            throw CCNetException(CCNetException::ValidatorJammedError);
 
-        case PollResponse::DropCassetteFull:
-        {
-            //TODO
-        }
-            break;
+        case  PollResponse::DropCassetteFull:
+            throw CCNetException(CCNetException::DropCassetteFullError);
+            ;
         case PollResponse::DropCassetteJammed: //happens when you hold the bill from stacker side when the validator is trying to return it
-        {
-            //TODO
-        }
-            break;
+            throw CCNetException(CCNetException::DropCassetteJammedError);
 
         case PollResponse::DropCassetteOutOfPosition:
-        {
-            //TODO
-        }
-            break;
+            throw  CCNetException(CCNetException::DropCassetteOutOfPositionError);
+
+        case PollResponse::Pause: //deadlock state
+            throw CCNetException(CCNetException::PausedError);
 
 
-        case PollResponse::Accepting :
-            //qDebug()<<"accepting";
-            break;
         case PollResponse::EscrowPosition:
         {
             int bill=poll.billType();
             qDebug()<<bill;
             log(status,bill);
             sendCommand(CCNet::deviceCommand::stackBill);
-            //sendCommand(CCNet::deviceCommand::returnBill);
         }
-
             break;
-        case PollResponse::BillStacked:
 
+        case PollResponse::Idling:{ //must return to idling after stacking the bill
+            if(billStacked){
+                finished=true;
+            }
+        }
+            break;
+
+
+
+        case PollResponse::BillStacked:{
             stackedBill=poll.billType();
             log(status,stackedBill);
-            finished=true;
+            //finished=true;
+            qDebug()<<"stacked bill: " << stackedBill;
+        }
             break;
+        case PollResponse::BillReturned:
+        {
+            log(status,poll.billType());
+        }
+            break;
+
         }
 
+
+
     }
-    qDebug()<<"stacked bill: " << stackedBill;
 }
 
 void CashCode::log(PollResponse::Status status, int billType)
 {
     QString statusStr=toString(status);
+
+}
+
+void CashCode::log(PollResponse::Status status, PollResponse::GenericFailureReason)
+{
+
+}
+
+void CashCode::log(PollResponse::Status status, PollResponse::RejectReason)
+{
+
+}
+
+void CashCode::log(PollResponse::Status status)
+{
 
 }
 

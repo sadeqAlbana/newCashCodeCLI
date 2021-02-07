@@ -50,6 +50,7 @@ public:
     void log(PollResponse::Status status, int z2);
     void log(PollResponse::Status status,PollResponse::GenericFailureReason);
     void log(PollResponse::Status status, PollResponse::RejectReason);
+    void log(PollResponse::Status status);
 
     void enableBillTypes(int bill);
 
@@ -57,6 +58,7 @@ public:
 
 signals:
     void error(QString error);
+    void stacked(int bill);
 
 public slots:
 

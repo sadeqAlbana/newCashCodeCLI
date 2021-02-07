@@ -20,15 +20,6 @@ int main(int argc, char *argv[])
 
     CashCode cashcode;
 
-    //PollResponse::Status status=PollResponse::Busy;
-
-//    QByteArray array((char *)&status,1);
-//    //array.detach();
-//    qDebug()<<&status;
-//    qDebug()<<(void*)array.constData();
-//    return 0;
-
-
     if(!cashcode.open()){
         qDebug()<<"could not open !";
         return 0;
@@ -45,7 +36,7 @@ int main(int argc, char *argv[])
         cashcode.powerup();
 
         QThread::sleep(2);
-        cashcode.enableBillTypes();
+        cashcode.enableBillTypes(1000);
         cashcode.operate();
         cashcode.disableBillTypes();
 

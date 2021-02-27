@@ -2,16 +2,17 @@
 #define CASHCODE_H
 
 #include <QThread>
-#include "serialport.h"
+#include "cserialport.h"
 #include "utils.h"
 #include "ccnetresponse.h"
 #include "pollresponse.h"
 class PollResponse;
+
 class CashCode : public QObject
 {
     Q_OBJECT
 public:
-    explicit CashCode(QObject *parent = nullptr);
+    explicit CashCode(QString port,QObject *parent = nullptr);
 
     bool open();
     void close();
@@ -30,7 +31,7 @@ public:
     bool sendACK();
     bool sendNAK();
 
-    int powerup();
+    bool powerup();
 
     bool CheckErrors(QByteArray result);
 
@@ -46,7 +47,7 @@ public:
     void disableBillTypes();
     PollResponse poll();
 
-    void operate();
+    int operate(bool &mustStop);
     void log(PollResponse::Status status, int z2);
     void log(PollResponse::Status status,PollResponse::GenericFailureReason);
     void log(PollResponse::Status status, PollResponse::RejectReason);
@@ -64,7 +65,7 @@ public slots:
 
 
 private:
-    SerialPort serial;
+    CSerialPort serial;
      int         channels[8] = { 0,250,500,1000,5000,10000,25000,50000};
 };
 

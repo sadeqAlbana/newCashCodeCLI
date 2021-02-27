@@ -7,13 +7,11 @@
 #include "getbilltableresponse.h"
 #include "identificationresponse.h"
 #include "ccnetexception.h"
-CashCode::CashCode(QObject *parent) : QObject(parent)
+CashCode::CashCode(QString port, QObject *parent) : QObject(parent)
 {
-    QString arg=QCoreApplication::arguments().value(1);
-    if(arg.isEmpty())
-        arg="/dev/ttyUSB0";
+    //qDebug()<<"cashcode cons thread: " << this->thread();
 
-    serial.setPortName(arg);
+    serial.setPortName(port);
 }
 
 bool CashCode::open()
@@ -32,6 +30,8 @@ void CashCode::close()
 
 CCNetResponse CashCode::sendCommand(const CCNet::deviceCommand &cmd, const quint8 &subCmd, const QByteArray &data)
 {
+    //qDebug()<<"sent thread: " << this->thread();
+
     QByteArray message=createMessage(cmd,subCmd,data);
 
     if(!serial.clear())
@@ -133,13 +133,13 @@ bool CashCode::sendNAK()
     return serial.waitForBytesWritten();
 }
 
-int CashCode::powerup()
+bool CashCode::powerup()
 {
     PollResponse poll=this->poll();
 
     if(poll.status()==PollResponse::Disabled){
         qDebug()<<"validator is already ready to work !";
-        return 0;
+        return true;
     }
 
     if(poll.status()==PollResponse::PowerUp || poll.status()==PollResponse::PowerUpWithBillinValidator || poll.status()==PollResponse::PowerUpWithBillinStacker){
@@ -167,11 +167,12 @@ int CashCode::powerup()
                 poll=this->poll();
                 if(poll.status()==PollResponse::Disabled){
                     qDebug()<<"bill validator ready to work !";
-                    return 0;
+                    return true;
                 }
                 else{
                     qDebug()<<"waiting ...";
                     //exit with some error code ?
+                    //return false;
                 }
             }
 
@@ -180,7 +181,7 @@ int CashCode::powerup()
 
     } //powerup
 
-
+    return true;
 }
 
 QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8 &subCmd, QByteArray data)
@@ -254,13 +255,15 @@ PollResponse CashCode::poll()
     return res;
 }
 
-void CashCode::operate()
+int CashCode::operate(bool &mustStop)
 {
+    //qDebug()<<"operate thread: " << this->thread();
+
     bool finished=false;
     int stackedBill=-1;
     bool billStacked=false;
 
-    while (!finished) {
+    while (!finished && !mustStop) {
         PollResponse poll=this->poll();
 
         PollResponse::Status status=poll.status();
@@ -298,6 +301,8 @@ void CashCode::operate()
         case PollResponse::Idling:{ //must return to idling after stacking the bill
             if(billStacked){
                 finished=true;
+               // mustStop=true;
+
             }
         }
             break;
@@ -306,6 +311,7 @@ void CashCode::operate()
 
         case PollResponse::BillStacked:{
             stackedBill=poll.billType();
+            billStacked=true;
             log(status,stackedBill);
             //finished=true;
             qDebug()<<"stacked bill: " << stackedBill;
@@ -319,9 +325,9 @@ void CashCode::operate()
 
         }
 
-
-
     }
+    qDebug()<<"returned !";
+    return stackedBill;
 }
 
 void CashCode::log(PollResponse::Status status, int billType)

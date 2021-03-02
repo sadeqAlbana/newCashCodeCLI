@@ -25,6 +25,19 @@ QJsonObject CCNetException::additionalInfo() const
 {
     return m_additionalInfo;
 }
+
+bool CCNetException::isFatal()
+{
+    switch (type()) {
+    case CCNetException::CRCError: return false;
+    case CCNetException::SyncError: return false;
+    case CCNetException::IncompleteResponseTimout: return false;
+    case CCNetException::NAK: return false;
+
+    default: return true;
+
+    }
+}
 QString toString(CCNetException::Type type)
 
 {

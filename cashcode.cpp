@@ -69,7 +69,9 @@ CCNetResponse CashCode::sendCommand(const CCNet::deviceCommand &cmd, const quint
             result.append(serial.readAll());
         }
 
-        //result is now complete, check crc16
+        //result is now complete, check address and crc16
+
+        //add address check later !
 
         bool crcValid=validateResponse(result);
         if(!crcValid){
@@ -122,7 +124,9 @@ bool CashCode::sendACK()
     serial.clear();
     QByteArray ack=QByteArray::fromHex("02030600c282");
     serial.write(ack);
-    return serial.waitForBytesWritten();
+    bool success = serial.waitForBytesWritten();
+    this->thread()->msleep(20); //Tfree(min.)
+    return success;
 }
 
 bool CashCode::sendNAK()
@@ -130,7 +134,11 @@ bool CashCode::sendNAK()
     serial.clear();
     QByteArray nak=QByteArray::fromHex("020306ffba8d");
     serial.write(nak);
-    return serial.waitForBytesWritten();
+    bool success= serial.waitForBytesWritten();
+
+    this->thread()->msleep(20); //Tfree(min.)
+
+    return success;
 }
 
 bool CashCode::powerup()
@@ -141,9 +149,9 @@ bool CashCode::powerup()
         qDebug()<<"validator is already ready to work !";
         return true;
     }
+    CCNetResponse reset=this->sendCommand(CCNet::deviceCommand::reset);
 
     if(poll.status()==PollResponse::PowerUp || poll.status()==PollResponse::PowerUpWithBillinValidator || poll.status()==PollResponse::PowerUpWithBillinStacker){
-        CCNetResponse reset=this->sendCommand(CCNet::deviceCommand::reset);
         //qDebug()<<"reset: " << reset;
 
         poll=this->poll();
@@ -264,7 +272,7 @@ int CashCode::operate(bool &mustStop)
     bool billStacked=false;
 
     while (!finished && !mustStop) {
-        PollResponse poll=this->poll();
+        PollResponse poll=this->pollRedundant();
 
         PollResponse::Status status=poll.status();
         //qDebug()<<"status: " << status;
@@ -404,8 +412,75 @@ void CashCode::enableBillTypes(int bill)
 
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,data);
     qDebug()<<"enable bill types z1: " << res.z1();
-    PollResponse poll=this->poll();
+    PollResponse poll=this->pollRedundant();
 
+}
+
+void CashCode::enableBillTypesRedundant(int bill)
+{
+    int tries=0;
+    int limit=3;
+
+    while (true) {
+
+        try {
+            enableBillTypes(bill);
+            break;
+        }
+        catch (CCNetException e) {
+            if(e.isFatal()){
+                throw e;
+            }else{
+                if(++tries==limit)
+                    throw e;
+            }
+        }
+    }
+}
+
+void CashCode::disableBillTypesRedundant()
+{
+    int tries=0;
+    int limit=3;
+
+    while (true) {
+
+        try {
+            disableBillTypes();
+            break;
+        }
+        catch (CCNetException e) {
+            if(e.isFatal()){
+                throw e;
+            }else{
+                if(++tries==limit)
+                    throw e;
+            }
+        }
+    }
+}
+
+PollResponse CashCode::pollRedundant()
+{
+    int tries=0;
+    int limit=3;
+
+    while (true) {
+
+        try {
+            PollResponse res=poll();
+            return res;
+        }
+        catch (CCNetException e) {
+            if(e.isFatal()){
+                throw e;
+            }else{
+                this->thread()->msleep(200);
+                if(++tries==limit)
+                    throw e;
+            }
+        }
+    }
 }
 
 

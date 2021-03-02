@@ -22,7 +22,7 @@ public:
         DropCassetteJammedError,
         DropCassetteOutOfPositionError,
         PausedError,
-        CheatedError,
+        CheatedError, //should remove from exceptions !
 
     };
 
@@ -41,6 +41,8 @@ public:
     QString callerMethod() const;
 
     QJsonObject additionalInfo() const;
+
+    bool isFatal();
 
 private:
     Type m_type;

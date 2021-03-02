@@ -55,6 +55,12 @@ public:
 
     void enableBillTypes(int bill);
 
+    void enableBillTypesRedundant(int bill); //will catch and rethrow exceptions
+    void disableBillTypesRedundant(); //will catch and rethrow exceptions
+    PollResponse pollRedundant(); //will catch and rethrow exceptions
+
+
+
 
 
 signals:

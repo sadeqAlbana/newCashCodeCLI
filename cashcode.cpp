@@ -268,7 +268,7 @@ int CashCode::operate(bool &mustStop)
     //qDebug()<<"operate thread: " << this->thread();
 
     bool finished=false;
-    int stackedBill=-1;
+    int stackedBill=0;
     bool billStacked=false;
 
     while (!finished && !mustStop) {

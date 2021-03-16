@@ -278,6 +278,9 @@ int CashCode::operate(bool &mustStop)
         //qDebug()<<"status: " << status;
         switch (status) {
 
+        case PollResponse::Accepting: emit billEntered(true); break;
+        case PollResponse::Rejecting: emit billEntered(false); break;
+
         case PollResponse::Cheated: //happens when you pull the bill manually from the stacker side
             throw CCNetException(CCNetException::CheatedError);
 

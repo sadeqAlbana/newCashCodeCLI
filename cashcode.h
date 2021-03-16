@@ -66,6 +66,7 @@ public:
 signals:
     void error(QString error);
     void stacked(int bill);
+    void billEntered(bool accepting);
 
 public slots:
 

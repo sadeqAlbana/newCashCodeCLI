@@ -41,6 +41,8 @@ public:
     QString callerMethod() const;
 
     QJsonObject additionalInfo() const;
+    QString additionalInfoString() const;
+
 
     bool isFatal();
 

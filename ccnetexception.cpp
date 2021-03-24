@@ -1,5 +1,5 @@
 #include "ccnetexception.h"
-
+#include <QJsonDocument>
 
 
 CCNetException::CCNetException(const CCNetException::Type &type, const QString &method, const QJsonObject &additionalInfo) : m_type(type),
@@ -24,6 +24,11 @@ QString CCNetException::callerMethod() const
 QJsonObject CCNetException::additionalInfo() const
 {
     return m_additionalInfo;
+}
+
+QString CCNetException::additionalInfoString() const
+{
+    return QJsonDocument(additionalInfo()).toJson();
 }
 
 bool CCNetException::isFatal()

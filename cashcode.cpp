@@ -7,7 +7,7 @@
 #include "getbilltableresponse.h"
 #include "identificationresponse.h"
 #include "ccnetexception.h"
-CashCode::CashCode(QString port, QObject *parent) : QObject(parent)
+CashCode::CashCode(QString port, QObject *parent) : QObject(parent),_billStacked(false)
 {
     //qDebug()<<"cashcode cons thread: " << this->thread();
 
@@ -269,7 +269,7 @@ int CashCode::operate(bool &mustStop)
 
     bool finished=false;
     int stackedBill=0;
-    bool billStacked=false;
+    _billStacked=false;
 
     while (!finished && !mustStop) {
         PollResponse poll=this->pollRedundant();
@@ -310,7 +310,7 @@ int CashCode::operate(bool &mustStop)
             break;
 
         case PollResponse::Idling:{ //must return to idling after stacking the bill
-            if(billStacked){
+            if(billStacked()){
                 finished=true;
                // mustStop=true;
 
@@ -322,7 +322,7 @@ int CashCode::operate(bool &mustStop)
 
         case PollResponse::BillStacked:{
             stackedBill=poll.billType();
-            billStacked=true;
+            _billStacked=true;
             log(status,stackedBill);
             //finished=true;
             qDebug()<<"stacked bill: " << stackedBill;
@@ -486,4 +486,7 @@ PollResponse CashCode::pollRedundant()
     }
 }
 
-
+bool CashCode::billStacked() const
+{
+    return _billStacked;
+}

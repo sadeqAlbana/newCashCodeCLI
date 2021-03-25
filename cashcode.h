@@ -63,6 +63,8 @@ public:
 
 
 
+    bool billStacked() const;
+
 signals:
     void error(QString error);
     void stacked(int bill);
@@ -74,6 +76,7 @@ public slots:
 private:
     CSerialPort serial;
      int         channels[8] = { 0,250,500,1000,5000,10000,25000,50000};
+     bool _billStacked;
 };
 
 #endif // CASHCODE_H

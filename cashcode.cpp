@@ -365,7 +365,7 @@ void CashCode::log(PollResponse::Status status)
 void CashCode::enableBillTypes(int bill)
 {
     std::vector<quint8> params = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
+    qDebug()<<"bill: " << bill;
     switch (bill) {
     case 1000:
         params = {0x80, 0x20, 0x08, 0x80, 0x20, 0x08};
@@ -412,9 +412,8 @@ void CashCode::enableBillTypes(int bill)
     }
 
     QByteArray data((char *)params.data(),params.size());
-
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,data);
-    qDebug()<<"enable bill types z1: " << res.z1();
+    qDebug()<<"enable bill types res z1: " << res.z1();
     PollResponse poll=this->pollRedundant();
 
 }

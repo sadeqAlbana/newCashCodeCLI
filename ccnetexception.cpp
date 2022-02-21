@@ -86,8 +86,8 @@ QString toString(CCNetException::Type type)
         return "CCNetException::DropCassetteFullError";
     case CCNetException::PausedError:
         return "CCNetException::PausedError";
-    case CCNetException::CheatedError:
-        return "CCNetException::CheatedError";
+//    case CCNetException::CheatedError:
+//        return "CCNetException::CheatedError";
     }
 }
 

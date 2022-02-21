@@ -237,7 +237,7 @@ QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8
 void CashCode::disableBillTypes()
 {
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,QByteArray::fromHex("000000"));
-    qDebug()<<"disable bill types: " << res.z1();
+    qDebug()<<"disable bill types res z1: " << res.z1();
     PollResponse poll=this->poll();
 }
 
@@ -281,8 +281,8 @@ int CashCode::operate(bool &mustStop)
         case PollResponse::Accepting: emit billEntered(true); break;
         case PollResponse::Rejecting: emit billEntered(false); break;
 
-        case PollResponse::Cheated: //happens when you pull the bill manually from the stacker side
-            throw CCNetException(CCNetException::CheatedError);
+//        case PollResponse::Cheated: //happens when you pull the bill manually from the stacker side
+//            throw CCNetException(CCNetException::CheatedError);
 
         case PollResponse::ValidatorJammed: //happens when you block the validator from acceptance path
             throw CCNetException(CCNetException::ValidatorJammedError);
@@ -337,7 +337,7 @@ int CashCode::operate(bool &mustStop)
         }
 
     }
-    qDebug()<<"returned !";
+//    qDebug()<<"returned !";
     return stackedBill;
 }
 
@@ -365,7 +365,7 @@ void CashCode::log(PollResponse::Status status)
 void CashCode::enableBillTypes(int bill)
 {
     std::vector<quint8> params = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    qDebug()<<"bill: " << bill;
+    //qDebug()<<"bill: " << bill;
     switch (bill) {
     case 1000:
         params = {0x80, 0x20, 0x08, 0x80, 0x20, 0x08};
@@ -430,6 +430,8 @@ void CashCode::enableBillTypesRedundant(int bill)
             break;
         }
         catch (CCNetException e) {
+            qDebug()<<"CashCode::enableBillTypesRedundant exception: " << e.type() << "additional Info: " << e.additionalInfoString();
+
             if(e.isFatal()){
                 throw e;
             }else{
@@ -452,6 +454,8 @@ void CashCode::disableBillTypesRedundant()
             break;
         }
         catch (CCNetException e) {
+            qDebug()<<"CashCode::disableBillTypesRedundant exception: " << e.type() << "additional Info: " << e.additionalInfoString();
+
             if(e.isFatal()){
                 throw e;
             }else{
@@ -474,6 +478,7 @@ PollResponse CashCode::pollRedundant()
             return res;
         }
         catch (CCNetException e) {
+            qDebug()<<"CashCode::pollRedundant exception: " << e.type() << "additional Info: " << e.additionalInfoString();
             if(e.isFatal()){
                 throw e;
             }else{

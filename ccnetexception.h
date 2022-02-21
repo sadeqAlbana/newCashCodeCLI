@@ -22,7 +22,7 @@ public:
         DropCassetteJammedError,
         DropCassetteOutOfPositionError,
         PausedError,
-        CheatedError, //should remove from exceptions !
+        //CheatedError, //should remove from exceptions !
 
     };
 

@@ -17,12 +17,7 @@ public:
     bool open();
     void close();
 
-
-
-
-
     CCNetResponse sendCommand(const CCNet::deviceCommand &cmd,const quint8 &subCmd=0, const QByteArray &data=QByteArray());
-
 
     bool messageComplete(const QByteArray &data) const;
 
@@ -38,7 +33,7 @@ public:
     QByteArray createMessage(const CCNet::deviceCommand &cmd, const quint8 &subCmd=0, QByteArray data=QByteArray());
 
     void run();
-
+    QString port();
 
     int m_LastError;
 
@@ -74,9 +69,10 @@ public slots:
 
 
 private:
-    CSerialPort serial;
+     CSerialPort *m_serial;
      int         channels[8] = { 0,250,500,1000,5000,10000,25000,50000};
-     bool _billStacked;
+     bool _billStacked=false;
+
 };
 
 #endif // CASHCODE_H

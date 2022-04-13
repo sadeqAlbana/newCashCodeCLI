@@ -7,23 +7,23 @@
 #include "getbilltableresponse.h"
 #include "identificationresponse.h"
 #include "ccnetexception.h"
-CashCode::CashCode(QString port, QObject *parent) : QObject(parent),_billStacked(false)
+CashCode::CashCode(QString port, QObject *parent) : QObject(parent),m_serial(new CSerialPort(this))
 {
     //qDebug()<<"cashcode cons thread: " << this->thread();
 
-    serial.setPortName(port);
+    m_serial->setPortName(port);
 }
 
 bool CashCode::open()
 {
-    bool success= serial.open(QIODevice::ReadWrite);
+    bool success= m_serial->open(QIODevice::ReadWrite);
 
     return success;
 }
 
 void CashCode::close()
 {
-    serial.close();
+    m_serial->close();
 }
 
 
@@ -34,14 +34,14 @@ CCNetResponse CashCode::sendCommand(const CCNet::deviceCommand &cmd, const quint
 
     QByteArray message=createMessage(cmd,subCmd,data);
 
-    if(!serial.clear())
+    if(!m_serial->clear())
         throw CCNetException(CCNetException::SerialClearError);
 
 
-    if(!serial.write(message))
+    if(!m_serial->write(message))
         throw CCNetException(CCNetException::SerialWriteTimeout);
 
-    if(!serial.waitForBytesWritten()) //official is 10ms
+    if(!m_serial->waitForBytesWritten()) //official is 10ms
         throw CCNetException(CCNetException::SerialReadTimeout);
 
 
@@ -53,8 +53,8 @@ CCNetResponse CashCode::sendCommand(const CCNet::deviceCommand &cmd, const quint
     int timeout = 3000;
 
     QByteArray result;
-    if(serial.waitForReadyRead(timeout)){ //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
-        result.append(serial.readAll());
+    if(m_serial->waitForReadyRead(timeout)){ //tresponse(max.) 10.0 msec : The maximum time Peripheral will take to respond to a valid communication
+        result.append(m_serial->readAll());
         if((quint8)result[CCNet::SyncOffset]!= 0x02){
             qDebug()<<"result : " << result.toHex(' ');
             sendNAK();
@@ -62,11 +62,11 @@ CCNetResponse CashCode::sendCommand(const CCNet::deviceCommand &cmd, const quint
         }
 
         while(!messageComplete(result)){ //tinter-byte(max.) 5.0 msec : The maximum time allowed between bytes in a block transmission
-            if(!serial.waitForReadyRead(20)){
+            if(!m_serial->waitForReadyRead(20)){
                 sendNAK();
                 throw CCNetException(CCNetException::IncompleteResponseTimout);
             }
-            result.append(serial.readAll());
+            result.append(m_serial->readAll());
         }
 
         //result is now complete, check address and crc16
@@ -121,20 +121,20 @@ bool CashCode::validateResponse(QByteArray data) const
 
 bool CashCode::sendACK()
 {
-    serial.clear();
+    m_serial->clear();
     QByteArray ack=QByteArray::fromHex("02030600c282");
-    serial.write(ack);
-    bool success = serial.waitForBytesWritten();
+    m_serial->write(ack);
+    bool success = m_serial->waitForBytesWritten();
     this->thread()->msleep(20); //Tfree(min.)
     return success;
 }
 
 bool CashCode::sendNAK()
 {
-    serial.clear();
+    m_serial->clear();
     QByteArray nak=QByteArray::fromHex("020306ffba8d");
-    serial.write(nak);
-    bool success= serial.waitForBytesWritten();
+    m_serial->write(nak);
+    bool success= m_serial->waitForBytesWritten();
 
     this->thread()->msleep(20); //Tfree(min.)
 
@@ -232,7 +232,10 @@ QByteArray CashCode::createMessage(const CCNet::deviceCommand &cmd, const quint8
     return message;
 }
 
-
+QString CashCode::port()
+{
+    return m_serial->portName();
+}
 
 void CashCode::disableBillTypes()
 {

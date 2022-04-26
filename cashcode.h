@@ -38,7 +38,7 @@ public:
     int m_LastError;
 
 
-    void enableBillTypes();
+//    void enableBillTypes();
     void disableBillTypes();
     PollResponse poll();
 
@@ -48,9 +48,9 @@ public:
     void log(PollResponse::Status status, PollResponse::RejectReason);
     void log(PollResponse::Status status);
 
-    void enableBillTypes(int bill);
+    void enableBillTypes(const std::vector<quint8> &params);
 
-    void enableBillTypesRedundant(int bill); //will catch and rethrow exceptions
+    void enableBillTypesRedundant(const std::vector<quint8> &params); //will catch and rethrow exceptions
     void disableBillTypesRedundant(); //will catch and rethrow exceptions
     PollResponse pollRedundant(); //will catch and rethrow exceptions
 
@@ -70,7 +70,6 @@ public slots:
 
 private:
      CSerialPort *m_serial;
-     int         channels[8] = { 0,250,500,1000,5000,10000,25000,50000};
      bool _billStacked=false;
 
 };

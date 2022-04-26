@@ -365,55 +365,8 @@ void CashCode::log(PollResponse::Status status)
 
 }
 
-void CashCode::enableBillTypes(int bill)
+void CashCode::enableBillTypes(const std::vector<quint8> &params)
 {
-    std::vector<quint8> params = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    //qDebug()<<"bill: " << bill;
-    switch (bill) {
-    case 1000:
-        params = {0x80, 0x20, 0x08, 0x80, 0x20, 0x08};
-        break;
-    case 5000:
-        params = {0x00, 0x00, 0x10, 0x00, 0x00, 0x10};
-        break;
-    case 6000:
-        params = {0x00, 0x20, 0x18, 0x00, 0x20, 0x18};
-        break;
-    case 10000:
-        params = {0x00, 0x80, 0x20, 0x00, 0x80, 0x20};
-        break;
-    case 15000:
-        params = {0x00, 0x80, 0x30, 0x00, 0x80, 0x30};
-        break;
-    case 16000:
-        params = {0x80 ,0xA0, 0x38, 0x80, 0xA0, 0x38};
-        break;
-    case 25000:
-        params = {0x01, 0x00, 0x40 ,0x01, 0x00, 0x40};
-        break;
-    case 40000:
-        params = {0x01, 0x80, 0x70, 0x01, 0x80, 0x70};
-        break;
-    case 41000:
-        params = {0x81, 0xA0, 0x78, 0x81, 0xA0, 0x78};
-        break;
-    case 50000:
-        params = {0x02, 0x00, 0x80, 0x02, 0x00, 0x80};
-        break;
-    case 65000:
-        params = {0x03, 0x80, 0xF0, 0x03, 0x80, 0xF0};
-        break;
-    case 90000:
-        params = {0x03, 0x80 ,0xF0, 0x03, 0x80, 0xF0};
-        break;
-    case 91000:
-        params = {0x83, 0xA0, 0xF8, 0x83, 0xA0, 0xF8};
-        break;
-    default:
-        params = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        break;
-    }
-
     QByteArray data((char *)params.data(),params.size());
     CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,data);
     qDebug()<<"enable bill types res z1: " << res.z1();
@@ -421,7 +374,7 @@ void CashCode::enableBillTypes(int bill)
 
 }
 
-void CashCode::enableBillTypesRedundant(int bill)
+void CashCode::enableBillTypesRedundant(const std::vector<quint8> &params)
 {
     int tries=0;
     int limit=3;
@@ -429,7 +382,7 @@ void CashCode::enableBillTypesRedundant(int bill)
     while (true) {
 
         try {
-            enableBillTypes(bill);
+            enableBillTypes(params);
             break;
         }
         catch (CCNetException e) {

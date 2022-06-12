@@ -1,5 +1,4 @@
 #include <QCoreApplication>
-#include "serialport.h"
 #include <QSerialPortInfo>
 #include <QDebug>
 #include <QThread>
@@ -13,12 +12,13 @@
 #include "getbilltableresponse.h"
 #include "ccnetexception.h"
 #include "pollresponse.h"
+#include <QBitArray>
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
 
-    CashCode cashcode;
+    CashCode cashcode("/dev/ttyUSB0");
 
     if(!cashcode.open()){
         qDebug()<<"could not open !";
@@ -36,8 +36,19 @@ int main(int argc, char *argv[])
         cashcode.powerup();
 
         QThread::sleep(2);
-        cashcode.enableBillTypes(1000);
-        cashcode.operate();
+
+        //old method
+        std::vector<quint8> params = {0x00, 0x00, 0x08, 0x0, 0x00, 0x08};
+//        cashcode.enableBillTypes(params);
+
+
+        //new method
+        QBitArray ba(24,false);
+        ba.setBit(2,true); //this would be later given by an index map
+        cashcode.enableBillTypes(ba);
+
+        bool mustStop=false;
+        cashcode.operate(mustStop);
         cashcode.disableBillTypes();
 
     }

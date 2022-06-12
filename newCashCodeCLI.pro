@@ -16,29 +16,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        cashcode.cpp \
-        cashcodecommand.cpp \
-        ccnetexception.cpp \
-        ccnetresponse.cpp \
-        getbilltableresponse.cpp \
-        getstatusresponse.cpp \
-        identificationresponse.cpp \
-        main.cpp \
-        pollresponse.cpp \
-        serialport.cpp \
-        utils.cpp
+        $$PWD/cashcode.cpp \
+        $$PWD/cashcodecommand.cpp \
+        $$PWD/ccnetexception.cpp \
+        $$PWD/ccnetresponse.cpp \
+        $$PWD/cserialport.cpp \
+        $$PWD/getbilltableresponse.cpp \
+        $$PWD/getstatusresponse.cpp \
+        $$PWD/identificationresponse.cpp \
+        $$PWD/pollresponse.cpp \
+        $$PWD/utils.cpp \
+        $$PWD/main.cpp
+
 
 HEADERS += \
-    cashcode.h \
-    cashcodecommand.h \
-    ccnetexception.h \
-    ccnetresponse.h \
-    getbilltableresponse.h \
-    getstatusresponse.h \
-    identificationresponse.h \
-    pollresponse.h \
-    serialport.h \
-    utils.h
+    $$PWD/cashcode.h \
+    $$PWD/cashcodecommand.h \
+    $$PWD/ccnetexception.h \
+    $$PWD/ccnetresponse.h \
+    $$PWD/cserialport.h \
+    $$PWD/getbilltableresponse.h \
+    $$PWD/getstatusresponse.h \
+    $$PWD/identificationresponse.h \
+    $$PWD/pollresponse.h \
+    $$PWD/utils.h
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

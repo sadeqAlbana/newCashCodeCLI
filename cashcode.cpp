@@ -7,6 +7,8 @@
 #include "getbilltableresponse.h"
 #include "identificationresponse.h"
 #include "ccnetexception.h"
+#include <QBitArray>
+
 CashCode::CashCode(QString port, QObject *parent) : QObject(parent),m_serial(new CSerialPort(this))
 {
     //qDebug()<<"cashcode cons thread: " << this->thread();
@@ -372,6 +374,24 @@ void CashCode::enableBillTypes(const std::vector<quint8> &params)
     qDebug()<<"enable bill types res z1: " << res.z1();
     PollResponse poll=this->pollRedundant();
 
+}
+
+bool CashCode::enableBillTypes(QBitArray bits, bool escrow)
+{
+    if(bits.size()!=24)
+        return false;
+
+    if(escrow){
+        bits.resize(48);
+        for(int i=0; i<24; i++){
+            bits.setBit(bits[i+24]);
+        }
+    }
+    QByteArray bytes(bits.bits(), bits.count() / 8);
+    CCNetResponse res= sendCommand(CCNet::deviceCommand::enableBillTypes,0,bytes.data());
+    qDebug()<<"enable bill types res z1: " << res.z1();
+    PollResponse poll=this->pollRedundant();
+    return true;
 }
 
 void CashCode::enableBillTypesRedundant(const std::vector<quint8> &params)

@@ -49,6 +49,7 @@ public:
     void log(PollResponse::Status status);
 
     void enableBillTypes(const std::vector<quint8> &params);
+    bool enableBillTypes(QBitArray bits, bool escrow=true);
 
     void enableBillTypesRedundant(const std::vector<quint8> &params); //will catch and rethrow exceptions
     void disableBillTypesRedundant(); //will catch and rethrow exceptions

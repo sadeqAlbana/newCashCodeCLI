@@ -18,7 +18,17 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
 
-    CashCode cashcode("/dev/ttyUSB0");
+    CCNet::BillTable billTable;
+    billTable.insert(1,{"IRQ",50});
+    billTable.insert(2,{"IRQ",250});
+    billTable.insert(3,{"IRQ",500});
+    billTable.insert(4,{"IRQ",1000});
+    billTable.insert(5,{"IRQ",5000});
+    billTable.insert(6,{"IRQ",10000});
+    billTable.insert(7,{"IRQ",25000});
+    billTable.insert(8,{"IRQ",50000});
+
+    CashCode cashcode("/dev/ttyUSB0",billTable);
 
     if(!cashcode.open()){
         qDebug()<<"could not open !";
@@ -43,9 +53,11 @@ int main(int argc, char *argv[])
 
 
         //new method
-        QBitArray ba(24,false);
-        ba.setBit(2,true); //this would be later given by an index map
-        cashcode.enableBillTypes(ba);
+        //QBitArray ba(24,false);
+        //ba.setBit(2,true); //this would be later given by an index map
+        //cashcode.enableBillTypes(ba);
+
+        cashcode.requireBill(CCNet::Bill("IRQ",5000));
 
         bool mustStop=false;
         cashcode.operate(mustStop);

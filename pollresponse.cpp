@@ -27,12 +27,10 @@ PollResponse::RejectReason PollResponse::rejectReason() const
     return PollResponse::RejectReason(z2());
 }
 
-int PollResponse::billType() const
+int PollResponse::billIndex() const
 {
-    return CCNet::channels[z2()];
+    return z2();
 }
-
-
 
 QDebug operator<<(QDebug debug, PollResponse::RejectReason reason)
 {

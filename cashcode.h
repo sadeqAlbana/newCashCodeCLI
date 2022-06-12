@@ -12,7 +12,7 @@ class CashCode : public QObject
 {
     Q_OBJECT
 public:
-    explicit CashCode(QString port,QObject *parent = nullptr);
+    explicit CashCode(QString port, const CCNet::BillTable &billTable, QObject *parent = nullptr);
 
     bool open();
     void close();
@@ -42,8 +42,8 @@ public:
     void disableBillTypes();
     PollResponse poll();
 
-    int operate(bool &mustStop);
-    void log(PollResponse::Status status, int z2);
+    CCNet::Bill operate(bool &mustStop);
+    void log(PollResponse::Status status, CCNet::Bill);
     void log(PollResponse::Status status,PollResponse::GenericFailureReason);
     void log(PollResponse::Status status, PollResponse::RejectReason);
     void log(PollResponse::Status status);
@@ -51,19 +51,29 @@ public:
     void enableBillTypes(const std::vector<quint8> &params);
     bool enableBillTypes(QBitArray bits, bool escrow=true);
 
+    //higher level methods
+    bool requireBill(const CCNet::Bill &bill);
+    bool requireBills(const QList<CCNet::Bill> &bills);
+
+    bool requireBillRedundant(const CCNet::Bill &bill);
+    bool requireBillsRedundant(const QList<CCNet::Bill> &bills);
+
     void enableBillTypesRedundant(const std::vector<quint8> &params); //will catch and rethrow exceptions
     void disableBillTypesRedundant(); //will catch and rethrow exceptions
     PollResponse pollRedundant(); //will catch and rethrow exceptions
 
 
 
-
+    CCNet::Bill billType(const int billIndex) const;
 
     bool billStacked() const;
 
+    const CCNet::BillTable &billTable() const;
+    void setBillTable(const CCNet::BillTable &newBillTable);
+
 signals:
     void error(QString error);
-    void stacked(int bill);
+    void stacked(CCNet::Bill bill);
     void billEntered(bool accepting);
 
 public slots:
@@ -72,6 +82,7 @@ public slots:
 private:
      CSerialPort *m_serial;
      bool _billStacked=false;
+     CCNet::BillTable m_billTable;
 
 };
 

@@ -2,10 +2,30 @@
 #define UTILS_H
 
 #include <QByteArray>
+#include <QString>
+#include <QList>
 #define POLYNOMIAL 0x08408
 namespace CCNet {
-    static int  channels[8] = { 0,250,500,1000,5000,10000,25000,50000};
 
+class Bill{
+public:
+    Bill(const QString &currency, const int value);
+    Bill();
+
+    bool operator ==(const Bill &other) const;
+
+    const QString &currency() const;
+
+    int value() const;
+    bool isValid() const;
+
+private:
+
+    QString m_currency;
+    int m_value;
+};
+
+using BillTable = QMap<int, CCNet::Bill>;
 
 enum Bytes : quint8 {
     SyncByte = 0x02,
@@ -60,6 +80,8 @@ Disabled. Otherwise an ILLEGAL COMMAND response will be returned.
 namespace Utils {
     quint16 crc16(const QByteArray &data);
 }
+
+QDebug operator<<(QDebug debug, const CCNet::Bill &bill );
 
 
 #endif // UTILS_H

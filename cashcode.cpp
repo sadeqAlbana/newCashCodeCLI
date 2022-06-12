@@ -9,7 +9,7 @@
 #include "ccnetexception.h"
 #include <QBitArray>
 
-CashCode::CashCode(QString port, QObject *parent) : QObject(parent),m_serial(new CSerialPort(this))
+CashCode::CashCode(QString port, const CCNet::BillTable &billTable, QObject *parent) : QObject(parent),m_serial(new CSerialPort(this)),m_billTable(billTable)
 {
     //qDebug()<<"cashcode cons thread: " << this->thread();
 
@@ -268,12 +268,12 @@ PollResponse CashCode::poll()
     return res;
 }
 
-int CashCode::operate(bool &mustStop)
+CCNet::Bill CashCode::operate(bool &mustStop)
 {
     //qDebug()<<"operate thread: " << this->thread();
 
     bool finished=false;
-    int stackedBill=0;
+    CCNet::Bill stackedBill;
     _billStacked=false;
 
     while (!finished && !mustStop) {
@@ -307,7 +307,7 @@ int CashCode::operate(bool &mustStop)
 
         case PollResponse::EscrowPosition:
         {
-            int bill=poll.billType();
+            CCNet::Bill bill=billType(poll.billIndex());
             qDebug()<<bill;
             log(status,bill);
             sendCommand(CCNet::deviceCommand::stackBill);
@@ -326,7 +326,7 @@ int CashCode::operate(bool &mustStop)
 
 
         case PollResponse::BillStacked:{
-            stackedBill=poll.billType();
+            stackedBill=billType(poll.billIndex());
             _billStacked=true;
             log(status,stackedBill);
             //finished=true;
@@ -335,7 +335,7 @@ int CashCode::operate(bool &mustStop)
             break;
         case PollResponse::BillReturned:
         {
-            log(status,poll.billType());
+            log(status,billType(poll.billIndex()));
         }
             break;
 
@@ -346,7 +346,7 @@ int CashCode::operate(bool &mustStop)
     return stackedBill;
 }
 
-void CashCode::log(PollResponse::Status status, int billType)
+void CashCode::log(PollResponse::Status status, CCNet::Bill billType)
 {
     QString statusStr=toString(status);
 
@@ -392,6 +392,80 @@ bool CashCode::enableBillTypes(QBitArray bits, bool escrow)
     qDebug()<<"enable bill types res z1: " << res.z1();
     PollResponse poll=this->pollRedundant();
     return true;
+}
+
+bool CashCode::requireBill(const CCNet::Bill &bill)
+{
+    int index=m_billTable.key(bill,-1);
+    if(index==-1)
+        return false;
+
+    QBitArray bits(24,false);
+    bits.setBit(index,true);
+
+    return enableBillTypes(bits);
+}
+
+bool CashCode::requireBills(const QList<CCNet::Bill> &bills)
+{
+    QBitArray bits(24,false);
+    for(const CCNet::Bill &bill : bills){
+        int index=m_billTable.key(bill,-1);
+        if(index==-1)
+            return false;
+        bits.setBit(index,true);
+    }
+
+    return enableBillTypes(bits);
+
+}
+
+bool CashCode::requireBillRedundant(const CCNet::Bill &bill)
+{
+    int tries=0;
+    int limit=3;
+
+    while (true) {
+
+        try {
+            return requireBill(bill);
+            break;
+        }
+        catch (CCNetException e) {
+            qDebug()<<"CashCode::requireBillRedundant exception: " << e.type() << "additional Info: " << e.additionalInfoString();
+
+            if(e.isFatal()){
+                throw e;
+            }else{
+                if(++tries==limit)
+                    throw e;
+            }
+        }
+    }
+}
+
+bool CashCode::requireBillsRedundant(const QList<CCNet::Bill> &bills)
+{
+    int tries=0;
+    int limit=3;
+
+    while (true) {
+
+        try {
+            return requireBills(bills);
+            break;
+        }
+        catch (CCNetException e) {
+            qDebug()<<"CashCode::requireBillsRedundant exception: " << e.type() << "additional Info: " << e.additionalInfoString();
+
+            if(e.isFatal()){
+                throw e;
+            }else{
+                if(++tries==limit)
+                    throw e;
+            }
+        }
+    }
 }
 
 void CashCode::enableBillTypesRedundant(const std::vector<quint8> &params)
@@ -466,7 +540,22 @@ PollResponse CashCode::pollRedundant()
     }
 }
 
+CCNet::Bill CashCode::billType(const int index) const
+{
+    return m_billTable[index];
+}
+
 bool CashCode::billStacked() const
 {
     return _billStacked;
+}
+
+const CCNet::BillTable &CashCode::billTable() const
+{
+    return m_billTable;
+}
+
+void CashCode::setBillTable(const CCNet::BillTable &newBillTable)
+{
+    m_billTable = newBillTable;
 }

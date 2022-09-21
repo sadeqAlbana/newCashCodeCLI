@@ -71,6 +71,8 @@ public:
     const CCNet::BillTable &billTable() const;
     void setBillTable(const CCNet::BillTable &newBillTable);
 
+    void update(const QString &firmwarePath);
+
 signals:
     void error(QString error);
     void stacked(CCNet::Bill bill);

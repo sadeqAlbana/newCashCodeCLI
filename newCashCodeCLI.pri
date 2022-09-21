@@ -1,26 +1,27 @@
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/src
 
+include(intelhex/intelhex.pri)
 SOURCES += \
-        $$PWD/cashcode.cpp \
-        $$PWD/cashcodecommand.cpp \
-        $$PWD/ccnetexception.cpp \
-        $$PWD/ccnetresponse.cpp \
-        $$PWD/cserialport.cpp \
-        $$PWD/getbilltableresponse.cpp \
-        $$PWD/getstatusresponse.cpp \
-        $$PWD/identificationresponse.cpp \
-        $$PWD/pollresponse.cpp \
-        $$PWD/utils.cpp
+        $$PWD/src/cashcode.cpp \
+        $$PWD/src/cashcodecommand.cpp \
+        $$PWD/src/ccnetexception.cpp \
+        $$PWD/src/ccnetresponse.cpp \
+        $$PWD/src/cserialport.cpp \
+        $$PWD/src/getbilltableresponse.cpp \
+        $$PWD/src/getstatusresponse.cpp \
+        $$PWD/src/identificationresponse.cpp \
+        $$PWD/src/pollresponse.cpp \
+        $$PWD/src/utils.cpp
 
 HEADERS += \
-    $$PWD/cashcode.h \
-    $$PWD/cashcodecommand.h \
-    $$PWD/ccnetexception.h \
-    $$PWD/ccnetresponse.h \
-    $$PWD/cserialport.h \
-    $$PWD/getbilltableresponse.h \
-    $$PWD/getstatusresponse.h \
-    $$PWD/identificationresponse.h \
-    $$PWD/pollresponse.h \
-    $$PWD/utils.h
+    $$PWD/src/cashcode.h \
+    $$PWD/src/cashcodecommand.h \
+    $$PWD/src/ccnetexception.h \
+    $$PWD/src/ccnetresponse.h \
+    $$PWD/src/cserialport.h \
+    $$PWD/src/getbilltableresponse.h \
+    $$PWD/src/getstatusresponse.h \
+    $$PWD/src/identificationresponse.h \
+    $$PWD/src/pollresponse.h \
+    $$PWD/src/utils.h
 

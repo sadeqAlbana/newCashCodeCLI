@@ -559,3 +559,8 @@ void CashCode::setBillTable(const CCNet::BillTable &newBillTable)
 {
     m_billTable = newBillTable;
 }
+
+void CashCode::update(const QString &firmwarePath)
+{
+
+}

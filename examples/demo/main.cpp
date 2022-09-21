@@ -19,14 +19,14 @@ int main(int argc, char *argv[])
 
 
     CCNet::BillTable billTable;
-    billTable.insert(1,{"IRQ",50});
-    billTable.insert(2,{"IRQ",250});
-    billTable.insert(3,{"IRQ",500});
-    billTable.insert(4,{"IRQ",1000});
-    billTable.insert(5,{"IRQ",5000});
-    billTable.insert(6,{"IRQ",10000});
-    billTable.insert(7,{"IRQ",25000});
-    billTable.insert(8,{"IRQ",50000});
+    billTable.insert(0,{"IRQ",50});
+    billTable.insert(1,{"IRQ",250});
+    billTable.insert(2,{"IRQ",500});
+    billTable.insert(3,{"IRQ",1000});
+    billTable.insert(4,{"IRQ",5000});
+    billTable.insert(5,{"IRQ",10000});
+    billTable.insert(6,{"IRQ",25000});
+    billTable.insert(7,{"IRQ",50000});
 
     CashCode cashcode("/dev/ttyUSB0",billTable);
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
         //old method
         std::vector<quint8> params = {0x00, 0x00, 0x08, 0x0, 0x00, 0x08};
-//        cashcode.enableBillTypes(params);
+        cashcode.enableBillTypes(params);
 
 
         //new method
@@ -57,11 +57,15 @@ int main(int argc, char *argv[])
         //ba.setBit(2,true); //this would be later given by an index map
         //cashcode.enableBillTypes(ba);
 
-        cashcode.requireBill(CCNet::Bill("IRQ",5000));
+        //GetBillTableResponse res=cashcode.sendCommand(CCNet::deviceCommand::getBillTable);
+        //qDebug()<<res.billTable();
+        //cashcode.requireBill(CCNet::Bill("IRQ",5000));
+//        cashcode.enableBillTypes({0xff,0xff,0xff,0xff,0xff,0xff});
 
-        bool mustStop=false;
-        cashcode.operate(mustStop);
-        cashcode.disableBillTypes();
+//        bool mustStop=false;
+//        cashcode.operate(mustStop);
+//        cashcode.disableBillTypes();
+
 
     }
     catch(CCNetException e){

@@ -19,6 +19,10 @@ public:
     int value() const;
     bool isValid() const;
 
+    operator QString(){
+        return QString("%1%2").arg(m_currency,m_value);
+    }
+
 private:
 
     QString m_currency;

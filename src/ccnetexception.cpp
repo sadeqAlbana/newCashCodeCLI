@@ -69,26 +69,31 @@ QString toString(CCNetException::Type type)
         return "CCNetException::CRCError";
 
     case CCNetException::SyncError:
-        return "CCNetException::SyncError";
+        return QStringLiteral("CCNetException::SyncError");
 
     case CCNetException::OutOfRangeIndex:
-        return "CCNetException::OutOfRangeIndex";
+        return QStringLiteral("CCNetException::OutOfRangeIndex");
 
     case CCNetException::GenericFailure:
-        return "CCNetException::GenericFailure";
+        return QStringLiteral("CCNetException::GenericFailure");
     case CCNetException::RejectionError:
-        return "CCNetException::RejectionError";
+        return QStringLiteral("CCNetException::RejectionError");
     case CCNetException::ValidatorJammedError:
-        return "CCNetException::ValidatorJammedError";
+        return QStringLiteral("CCNetException::ValidatorJammedError");
     case CCNetException::DropCassetteJammedError:
-        return "CCNetException::DropCassetteJammedError";
+        return QStringLiteral("CCNetException::DropCassetteJammedError");
     case CCNetException::DropCassetteFullError:
-        return "CCNetException::DropCassetteFullError";
+        return QStringLiteral("CCNetException::DropCassetteFullError");
     case CCNetException::PausedError:
-        return "CCNetException::PausedError";
+        return QStringLiteral("CCNetException::PausedError");
+    case CCNetException::DropCassetteOutOfPositionError:
+        return QStringLiteral("CCNetException::DropCassetteOutOfPositionError");
+
 //    case CCNetException::CheatedError:
 //        return "CCNetException::CheatedError";
     }
+
+    return QStringLiteral("CCNetException::Invalid enum supplied");
 }
 
 
